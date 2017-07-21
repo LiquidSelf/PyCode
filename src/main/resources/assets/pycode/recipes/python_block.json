@@ -1,0 +1,27 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CLC",
+        "LRY",
+        "CYC"
+    ],
+    "key": {
+        "C": {
+            "item": "minecraft:cobblestone"
+        },
+        "L": {
+            "item": "minecraft:dye",
+            "data": 4
+        },
+        "Y": {
+            "item": "minecraft:dye",
+            "data": 11
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        }
+    },
+    "result": {
+        "item": "pycode:pythonblock"
+    }
+}

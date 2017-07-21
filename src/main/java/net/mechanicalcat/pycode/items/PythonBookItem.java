@@ -25,13 +25,11 @@ package net.mechanicalcat.pycode.items;
 
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
-import net.mechanicalcat.pycode.script.PythonCode;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -39,39 +37,46 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLLog;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 
-public class PythonBookItem extends Item {
+public class PythonBookItem extends Item
+{
     public List<String> pages;
 
-    public PythonBookItem() {
-        setUnlocalizedName(Reference.PyCodeRegistrations.BOOK.getUnlocalizedName());
-        setRegistryName(Reference.PyCodeRegistrations.BOOK.getRegistryName());
+    public PythonBookItem()
+    {
+        this.setRegistryName(Reference.PyCodeRegistrations.BOOK.getRegistryName());
+        this.setUnlocalizedName(Reference.PyCodeRegistrations.BOOK.getUnlocalizedName());
+        this.setCreativeTab(PyCode.PYTAB);
         this.setMaxStackSize(1);
-        setCreativeTab(CreativeTabs.TOOLS);
     }
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(@Nonnull ItemStack itemstack, World world, EntityPlayer playerIn, EnumHand hand) {
-        FMLLog.info("Book onItemRightClick stack=%s, hand=%s", itemstack, hand);
-        // don't activate the GUI if in offhand; don't do *anything*
-        if (hand == EnumHand.OFF_HAND) return new ActionResult(EnumActionResult.FAIL, itemstack);
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer playerIn, EnumHand hand)
+    {
+        ItemStack stack = playerIn.getHeldItem(hand);
+        FMLLog.log.info("Book onItemRightClick stack=%s, hand=%s", stack, hand);
+        if (hand == EnumHand.OFF_HAND) return new ActionResult(EnumActionResult.FAIL, stack);
 
-        PyCode.proxy.openBook(playerIn, itemstack);
-        return new ActionResult(EnumActionResult.SUCCESS, itemstack);
+        PyCode.proxy.openBook(stack);
+        return new ActionResult(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+    {
         NBTTagCompound compound = stack.getTagCompound();
+
         if (compound == null) return;
-        if (compound.hasKey("title")) {
+
+        if (compound.hasKey("title"))
+        {
             String title = compound.getString("title");
-            if (!title.isEmpty()) {
-                tooltip.add(title);
-            }
+
+            if (!title.isEmpty()) tooltip.add(title);
         }
     }
 

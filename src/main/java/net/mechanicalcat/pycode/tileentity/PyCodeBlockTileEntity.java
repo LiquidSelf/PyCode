@@ -23,7 +23,6 @@
 
 package net.mechanicalcat.pycode.tileentity;
 
-import net.mechanicalcat.pycode.init.ModItems;
 import net.mechanicalcat.pycode.items.PythonBookItem;
 import net.mechanicalcat.pycode.items.PythonWandItem;
 import net.mechanicalcat.pycode.script.*;
@@ -39,22 +38,20 @@ import net.minecraft.item.ItemWritableBook;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLLog;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
-public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode, ITickable, ICommandSender {
+public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode, ITickable, ICommandSender
+{
     private PythonCode code;
     public boolean isPowered = false;
     private int slowCountdown = -1;
@@ -73,7 +70,8 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
 
     @Override
     @Nonnull
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    {
         super.writeToNBT(compound);
         this.code.writeToNBT(compound);
         compound.setBoolean("isPowered", this.isPowered);
@@ -86,23 +84,25 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
         this.code.readFromNBT(compound);
         this.isPowered = compound.getBoolean("isPowered");
         this.code.put("block", new BlockMethods(this));
-        this.code.setContext(this.worldObj, this, this.getPos());
+        this.code.setContext(this.world, this, this.getPos());
     }
 
-    public Entity getEntity() {
-        // TileEntity isn't really an entity
+    public Entity getEntity()
+    {
         return null;
     }
 
-    public boolean handleItemInteraction(EntityPlayer player, ItemStack heldItem) {
-        FMLLog.info("Block Entity handleItemInteraction item=%s", heldItem);
-        this.isPowered = this.worldObj.isBlockPowered(this.getPosition());
+    public boolean handleItemInteraction(EntityPlayer player, ItemStack heldItem)
+    {
+        FMLLog.log.info("Block Entity handleItemInteraction item=%s", heldItem);
+        this.isPowered = this.world.isBlockPowered(this.getPosition());
 
-        if (heldItem == null) {
-            // this is only ever invoked on the server
-            if (this.code.hasKey("run")) {
+        if (heldItem == ItemStack.EMPTY)
+        {
+            if (this.code.hasKey("run"))
+            {
                 this.code.put("block", new BlockMethods(this));
-                this.code.setContext(this.worldObj, player, this.getPosition() );
+                this.code.setContext(this.world, player, this.getPosition() );
                 this.code.invoke("run", new MyEntityPlayer(player));
                 this.code.setRunner(this);
             }
@@ -110,35 +110,47 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
         }
 
         Item item = heldItem.getItem();
-        if (item instanceof PythonWandItem) {
+
+        if (item instanceof PythonWandItem)
+        {
             PythonWandItem.invokeOnBlock(player, this.getPosition());
             return true;
-        } else if (item instanceof PythonBookItem || item instanceof ItemWritableBook) {
+        }
+        else if (item instanceof PythonBookItem || item instanceof ItemWritableBook)
+        {
             BlockPos pos = this.getPosition();
             this.code.put("block", new BlockMethods(this));
-            this.code.setCodeFromBook(this.worldObj, player, this, pos, heldItem);
+            this.code.setCodeFromBook(this.world, player, this, pos, heldItem);
             return true;
         }
 
         return false;
     }
 
-    public void handleEntityInteraction(MyEntity entity, String method) {
-        if (!this.hasWorldObj()) return;
+    public void handleEntityInteraction(MyEntity entity, String method)
+    {
+        if (!this.world.isRemote) return;
         this.code.invoke(method, entity);
     }
 
-    public void update() {
-        if (!this.hasWorldObj()) return;
+    public void update()
+    {
+        if (!this.world.isRemote) return;
 
-        boolean isPowered = this.worldObj.isBlockPowered(pos);
-        if (isPowered != this.isPowered) {
-            if (isPowered) {
-                if (this.code.hasKey("powerOn")) {
+        boolean isPowered = this.world.isBlockPowered(pos);
+        if (isPowered != this.isPowered)
+        {
+            if (isPowered)
+            {
+                if (this.code.hasKey("powerOn"))
+                {
                     this.code.invoke("powerOn");
                 }
-            } else {
-                if (this.code.hasKey("powerOff")) {
+            }
+            else
+            {
+                if (this.code.hasKey("powerOff"))
+                {
                     this.code.invoke("powerOff");
                 }
             }
@@ -242,16 +254,12 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
     }
 
     public World getEntityWorld() {
-        return this.worldObj;
+        return this.world;
     }
 
     @Nullable
     public MinecraftServer getServer() {
-        return this.worldObj.getMinecraftServer();
-    }
-
-    public void addChatMessage(ITextComponent component) {
-        // do nothing
+        return this.world.getMinecraftServer();
     }
 
     public BlockPos getPosition() {
@@ -267,6 +275,18 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
         return "[Python Block]";
     }
 
+    @Override
+    public void sendMessage(ITextComponent component)
+    {
+
+    }
+
+    @Override
+    public boolean canUseCommand(int permLevel, String commandName)
+    {
+        return false;
+    }
+
     public boolean canCommandSenderUseCommand(int permLevel, String commandName) {
         return true;
     }
@@ -274,12 +294,4 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
     public void setCommandStat(CommandResultStats.Type type, int amount) {
         // we done store command stats like command blocks; TODO should we?
     }
-
-    public boolean sendCommandFeedback() {
-        // the block does not care :-)
-        return false;
-    }
-
-
-    // end ICommandSender
 }

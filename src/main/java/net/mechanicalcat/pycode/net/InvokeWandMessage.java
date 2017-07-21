@@ -24,14 +24,10 @@
 package net.mechanicalcat.pycode.net;
 
 import io.netty.buffer.ByteBuf;
-import net.mechanicalcat.pycode.init.ModItems;
 import net.mechanicalcat.pycode.items.PythonWandItem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -42,7 +38,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 
-public class InvokeWandMessage implements IMessage {
+public class InvokeWandMessage implements IMessage
+{
     private int entityId;
     private Vec3d hitVec;
     private RayTraceResult.Type typeOfHit;
@@ -50,27 +47,26 @@ public class InvokeWandMessage implements IMessage {
     private EnumFacing sideHit;
     RayTraceResult traceResult;
 
-    public static class Handler implements IMessageHandler<InvokeWandMessage, IMessage> {
+    public static class Handler implements IMessageHandler<InvokeWandMessage, IMessage>
+    {
         @Override
-        public IMessage onMessage(InvokeWandMessage message, MessageContext ctx) {
-            // This ensures that we run on the main Minecraft thread. 'onMessage' itself
-            // is called on the networking thread so it is not safe to do a lot of things
-            // here.
+        public IMessage onMessage(InvokeWandMessage message, MessageContext ctx)
+        {
             FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
             return null;
         }
 
-        private void handle(InvokeWandMessage message, MessageContext ctx) {
-            // note: we only get send types BLOCK and ENTITY and we only handle this message on the server
-            EntityPlayer player = ctx.getServerHandler().playerEntity;
-            switch (message.typeOfHit) {
+        private void handle(InvokeWandMessage message, MessageContext ctx)
+        {
+            EntityPlayer player = ctx.getServerHandler().player;
+            switch (message.typeOfHit)
+            {
                 case BLOCK:
-                    FMLLog.info("Got a InvokeWandMessage block=%s", message.blockPos);
+                    FMLLog.log.info("Got a InvokeWandMessage block=%s", message.blockPos);
                     PythonWandItem.invokeOnBlock(player, message.blockPos);
                 case ENTITY:
-                    // in theory this should never be invoked on the client...
-                    Entity entity = player.worldObj.getEntityByID(message.entityId);
-                    FMLLog.info("Got a InvokeWandMessage entity=%s", entity);
+                    Entity entity = player.world.getEntityByID(message.entityId);
+                    FMLLog.log.info("Got a InvokeWandMessage entity=%s", entity);
                     if (entity == null) return;
                     PythonWandItem.invokeOnEntity(player, entity);
                     break;
@@ -80,17 +76,24 @@ public class InvokeWandMessage implements IMessage {
         }
     }
 
-    public InvokeWandMessage() {}
+    public InvokeWandMessage()
+    {
 
-    public InvokeWandMessage(RayTraceResult traceResult) {
+    }
+
+    public InvokeWandMessage(RayTraceResult traceResult)
+    {
         this.traceResult = traceResult;
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(ByteBuf buf)
+    {
         hitVec = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
         typeOfHit = RayTraceResult.Type.MISS;
-        switch (buf.readShort()) {
+
+        switch (buf.readShort())
+        {
             case 1:
                 typeOfHit = RayTraceResult.Type.BLOCK;
                 blockPos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
@@ -103,12 +106,15 @@ public class InvokeWandMessage implements IMessage {
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
-        buf.writeDouble(this.traceResult.hitVec.xCoord);
-        buf.writeDouble(this.traceResult.hitVec.yCoord);
-        buf.writeDouble(this.traceResult.hitVec.zCoord);
+    public void toBytes(ByteBuf buf)
+    {
+        buf.writeDouble(this.traceResult.hitVec.x);
+        buf.writeDouble(this.traceResult.hitVec.y);
+        buf.writeDouble(this.traceResult.hitVec.z);
         buf.writeShort(this.traceResult.typeOfHit.ordinal());
-        switch (this.traceResult.typeOfHit) {
+
+        switch (this.traceResult.typeOfHit)
+        {
             case ENTITY:
                 buf.writeInt(this.traceResult.entityHit.getEntityId());
                 break;

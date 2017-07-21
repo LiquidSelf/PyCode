@@ -34,121 +34,142 @@ package net.mechanicalcat.pycode.script.jython;
 import javax.script.*;
 import java.util.*;
 
-public class JythonScriptEngineFactory implements ScriptEngineFactory {
-    public String getEngineName() { 
+public class JythonScriptEngineFactory implements ScriptEngineFactory
+{
+    public String getEngineName()
+    {
         return "jython";
     }
 
-    public String getEngineVersion() {
+    public String getEngineVersion()
+    {
         return "2.2.1";
     }
 
-    public List<String> getExtensions() {
+    public List<String> getExtensions()
+    {
         return extensions;
     }
 
-    public String getLanguageName() {
+    public String getLanguageName()
+    {
         return "python";
     }
 
-    public String getLanguageVersion() {
+    public String getLanguageVersion()
+    {
         return "2.2.1";
     }
 
-    public String getMethodCallSyntax(String obj, String m, String... args) {
+    public String getMethodCallSyntax(String obj, String m, String... args)
+    {
         StringBuilder buf = new StringBuilder();
         buf.append(obj);
         buf.append(".");
         buf.append(m);
         buf.append("(");
-        if (args.length != 0) {
+
+        if (args.length != 0)
+        {
             int i = 0;
-            for (; i < args.length - 1; i++) {
+
+            for (; i < args.length - 1; i++)
+            {
                 buf.append(args[i] + ", ");
             }
+
             buf.append(args[i]);
-        }        
+        }
+
         buf.append(")");
         return buf.toString();
     }
 
-    public List<String> getMimeTypes() {
+    public List<String> getMimeTypes()
+    {
         return mimeTypes;
     }
 
-    public List<String> getNames() {
+    public List<String> getNames()
+    {
         return names;
     }
 
-    public String getOutputStatement(String toDisplay) {
+    public String getOutputStatement(String toDisplay)
+    {
         StringBuilder buf = new StringBuilder();
         int len = toDisplay.length();
         buf.append("print(\"");
-        for (int i = 0; i < len; i++) {
+
+        for (int i = 0; i < len; i++)
+        {
             char ch = toDisplay.charAt(i);
+
             switch (ch) {
-            case '"':
-                buf.append("\\\"");
-                break;
-            case '\\':
-                buf.append("\\\\");
-                break;
-            default:
-                buf.append(ch);
-                break;
+                case '"':
+                    buf.append("\\\"");
+                    break;
+                case '\\':
+                    buf.append("\\\\");
+                    break;
+                default:
+                    buf.append(ch);
+                    break;
             }
         }
         buf.append("\")");
         return buf.toString();
     }
 
-    public String getParameter(String key) {
-        if (key.equals(ScriptEngine.ENGINE)) {
-            return getEngineName();
-        } else if (key.equals(ScriptEngine.ENGINE_VERSION)) {
-            return getEngineVersion();
-        } else if (key.equals(ScriptEngine.NAME)) {
-            return getEngineName();
-        } else if (key.equals(ScriptEngine.LANGUAGE)) {
-            return getLanguageName();
-        } else if (key.equals(ScriptEngine.LANGUAGE_VERSION)) {
-            return getLanguageVersion();
-        } else if (key.equals("THREADING")) {
-            return "MULTITHREADED";
-        } else {
-            return null;
+    public String getParameter(String key)
+    {
+        switch (key)
+        {
+            case ScriptEngine.ENGINE: return getEngineName();
+            case ScriptEngine.ENGINE_VERSION: return getEngineVersion();
+            case ScriptEngine.NAME: return getEngineName();
+            case ScriptEngine.LANGUAGE: return getLanguageName();
+            case ScriptEngine.LANGUAGE_VERSION: return getLanguageVersion();
+            default: return null;
         }
     } 
 
-    public String getProgram(String... statements) {
+    public String getProgram(String... statements)
+    {
         StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < statements.length; i++) {
+
+        for (int i = 0; i < statements.length; i++)
+        {
             buf.append("\t");
             buf.append(statements[i]);
             buf.append("\n");
         }
+
         return buf.toString();
     }
 
-    public ScriptEngine getScriptEngine() {
+    public ScriptEngine getScriptEngine()
+    {
         JythonScriptEngine engine = new JythonScriptEngine();
-   	engine.setFactory(this);
+   	    engine.setFactory(this);
         return engine;
     }
 
     private static List<String> names;
     private static List<String> extensions;
     private static List<String> mimeTypes;
-    static {
-        names = new ArrayList<String>(2);
+
+    static
+    {
+        names = new ArrayList(2);
         names.add("jython");
         names.add("python");
         names = Collections.unmodifiableList(names);
-        extensions = new ArrayList<String>(2);
+        extensions = new ArrayList(2);
         extensions.add("jy");
         extensions.add("pycode");
         extensions = Collections.unmodifiableList(extensions);
-        mimeTypes = new ArrayList<String>(0);
+        mimeTypes = new ArrayList(0);
         mimeTypes = Collections.unmodifiableList(mimeTypes);
     }
 }

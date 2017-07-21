@@ -28,11 +28,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
 
-public class ModNetwork {
+public class ModNetwork
+{
     private static String CHANNEL_NAME = "PyCodeChannel";
-    private static int messageId=0;
+    private static int messageId = 0;
     static public SimpleNetworkWrapper network;
-    static public void init() {
+
+    public static void register()
+    {
         network = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL_NAME);
         network.registerMessage(InvokeWandMessage.Handler.class, InvokeWandMessage.class, messageId++, Side.SERVER);
     }

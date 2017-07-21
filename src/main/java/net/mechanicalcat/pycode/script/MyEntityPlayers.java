@@ -23,8 +23,6 @@
 
 package net.mechanicalcat.pycode.script;
 
-import net.mechanicalcat.pycode.script.MyEntityPlayer;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,34 +34,43 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MyEntityPlayers {
+public class MyEntityPlayers
+{
     World world;
 
-    public MyEntityPlayers(World world) {
+    public MyEntityPlayers(World world)
+    {
         this.world = world;
     }
 
-    public MyEntityPlayer[] all() {
+    public MyEntityPlayer[] all()
+    {
         List<MyEntityPlayer> l = new LinkedList<>();
-        for (EntityPlayer e : world.playerEntities) {
+
+        for (EntityPlayer e : world.playerEntities)
+        {
             l.add(new MyEntityPlayer(e));
         }
+
         return l.toArray(new MyEntityPlayer[0]);
     }
 
-    public MyEntityPlayer random() {
+    public MyEntityPlayer random()
+    {
         int i = world.rand.nextInt(world.playerEntities.size());
         return new MyEntityPlayer(world.playerEntities.get(i));
     }
 
     @Nullable
-    public MyEntityPlayer closest(BlockPos pos) {
+    public MyEntityPlayer closest(BlockPos pos)
+    {
         EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 10, false);
         if (player == null) return null;
         return new MyEntityPlayer(player);
     }
 
-    public MyEntityPlayer get(MinecraftServer server, ICommandSender sender, String target) throws PlayerNotFoundException {
-        return new MyEntityPlayer(CommandBase.getPlayer(server, sender, target));
+    public MyEntityPlayer get(MinecraftServer server, ICommandSender sender, String target) throws PlayerNotFoundException
+    {
+        return new MyEntityPlayer((EntityPlayer) sender);
     }
 }

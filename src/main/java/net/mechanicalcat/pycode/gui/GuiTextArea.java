@@ -26,11 +26,8 @@ package net.mechanicalcat.pycode.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -40,35 +37,32 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class GuiTextArea extends Gui {
-    static final ResourceLocation texture = new ResourceLocation("pycode:textures/gui/code_book.png");
-    private static final int TEX_WIDTH = 334;
-    private static final int TEX_HEIGHT = 238;
-
+public class GuiTextArea extends Gui
+{
     private static final int SCROLL_SCALE = 50;
 
     private final int id;
     private FontRenderer fontRenderer;
-    public int xPosition;
-    public int yPosition;
-    public int width;
-    public int height;
-    public int maxRows;
+    public int
+            xPosition, yPosition,
+            width, height,
+            maxRows,
+            textYOffset, textXOffset,
+            xScissor, yScissor,
+            wScissor, hScissor;
 
-    private int textYOffset, textXOffset;
-    private int xScissor, yScissor, wScissor, hScissor;
-
-    /** If this value is true then keyTyped will process the keys. */
     private boolean isFocused;
 
-    private int cursorCounter = 0;
-    private int cursorRow = 0;
-    private int cursorColumn = 0;
-    private String[] lines = {"\n"};
+    private int
+            cursorCounter = 0,
+            cursorRow = 0,
+            cursorColumn = 0;
+    private String[] lines = { "\n" };
 
     private GuiPageButtonList.GuiResponder guiResponder;
 
-    GuiTextArea(int id, FontRenderer fontRenderer, int x, int y, int width, int height) {
+    public GuiTextArea(int id, FontRenderer fontRenderer, int x, int y, int width, int height)
+    {
         this.id = id;
         this.fontRenderer = fontRenderer;
         this.xPosition = x;
@@ -86,7 +80,7 @@ public class GuiTextArea extends Gui {
         // screen y increases up, figure where the bottom of the text area is
         int by = Minecraft.getMinecraft().currentScreen.height - (this.yPosition + this.height);
         this.xScissor = this.xPosition*factor;
-        this.yScissor = by*factor;
+        this.yScissor = by * factor;
         this.wScissor = this.width*factor;
         this.hScissor = this.height*factor;
     }
@@ -96,97 +90,104 @@ public class GuiTextArea extends Gui {
         return this.id;
     }
 
-    /**
-     * Increments the cursor counter and mouse scroll
-     */
-    public void update() {
-        // only interested in up to 12 ticks
+    public void update()
+    {
         this.cursorCounter = (this.cursorCounter + 1) % 12;
-        if (this.isFocused && Mouse.hasWheel()) {
+
+        if (this.isFocused && Mouse.hasWheel())
+        {
             int newScroll = Mouse.getDWheel();
-            if (newScroll != 0) {
-                this.scrollBy(newScroll);
-            }
+            if (newScroll != 0) this.scrollBy(newScroll);
         }
     }
 
-    public void scrollBy(int amount) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-            // TODO this reversal should probably be simplified??
+    public void scrollBy(int amount)
+    {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+        {
             this.textXOffset -= amount;
-        } else {
+        }
+        else
+        {
             this.textYOffset += amount;
         }
-        FMLLog.info("text offset = %d, %d", textXOffset, textYOffset);
+        FMLLog.log.info("text offset = %d, %d", textXOffset, textYOffset);
     }
 
-    /**
-     * Sets the GuiResponder associated with this text area.
-     */
     public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponderIn)
     {
         this.guiResponder = guiResponderIn;
     }
 
-    public void setString(String text) {
+    public void setString(String text)
+    {
         this._setString(text);
         this.setCursorPosition(0, 0);
     }
 
-    private void _editString(String text) {
+    private void _editString(String text)
+    {
         this._setString(text);
-        if (this.guiResponder != null) {
-            this.guiResponder.setEntryValue(this.id, this.getString());
-        }
+        if (this.guiResponder != null) this.guiResponder.setEntryValue(this.id, this.getString());
     }
 
-    private void _setString(String text) {
+    private void _setString(String text)
+    {
         String s = text;
         // fudge the last line so it has content so a line is actually created
-        if (text.endsWith("\n")) {
-            s += " ";
-        }
+        if (text.endsWith("\n")) s += " ";
         this.lines = s.split("\n");
         int last = this.lines.length - 1;
-        if (text.endsWith("\n")) {
-            this.lines[last] = "";
-        }
+
+        if (text.endsWith("\n")) this.lines[last] = "";
     }
 
-    public String[] getLines() {
+    public String[] getLines()
+    {
         return this.lines;
     }
 
-    public String getString() {
+    public String getString()
+    {
         return String.join("\n", this.lines);
     }
 
-    public void drawEditor() {
-        String content = getString();
-
-        // first up, determine the scroll offset
+    public void drawEditor()
+    {
         int xoff = textXOffset / SCROLL_SCALE;
         int yoff = textYOffset / SCROLL_SCALE;
-        if (yoff > 0) {
+
+        if (yoff > 0)
+        {
             yoff = 0;
             textYOffset = 0;
-        } else {
+        }
+        else
+        {
             int totHeight = -this.fontRenderer.FONT_HEIGHT * this.lines.length;
-            if (totHeight < height && yoff < totHeight + height) {
+            if (totHeight < height && yoff < totHeight + height)
+            {
                 yoff = totHeight + height;
                 textYOffset = yoff * SCROLL_SCALE;
             }
         }
-        if (xoff < 0) {
+        if (xoff < 0)
+        {
             xoff = 0;
             textXOffset = 0;
-        } else {
+        }
+        else
+        {
             int maxWidth = 0;
-            for (String line : this.lines) {
+
+            for (String line : this.lines)
+            {
                 int w = this.fontRenderer.getStringWidth(line);
                 if (w > maxWidth) maxWidth = w;
             }
-            if (maxWidth > width && xoff > maxWidth - width) {
+
+            if (maxWidth > width && xoff > maxWidth - width)
+            {
                 xoff = maxWidth - width;
                 textXOffset = xoff * SCROLL_SCALE;
             }
@@ -194,84 +195,96 @@ public class GuiTextArea extends Gui {
 
         // offset rendering by the scroll offset
         GlStateManager.pushMatrix();
-        GlStateManager.translate(-xoff, yoff, 0);
+        GlStateManager.translate(-xoff, 0, 0);
+        GlStateManager.translate(0, yoff > 0 ? 0 : yoff, 0);
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         GL11.glScissor(xScissor, yScissor, wScissor, hScissor);
 
         // draw cursor
         int cursorPos;
-        if (this.cursorRow == this.lines.length) {
+
+        if (this.cursorRow == this.lines.length)
+        {
             cursorPos = 0;      // current line is empty
-        } else {
+        }
+        else
+        {
             cursorPos = this.fontRenderer.getStringWidth(this.lines[this.cursorRow].substring(0, this.cursorColumn));
         }
+
         int cursor_x = this.xPosition + cursorPos;
         int cursor_y = this.yPosition + this.cursorRow * this.fontRenderer.FONT_HEIGHT + 1;
-        if (this.cursorCounter / 6 % 2 == 0) {
+
+        if (this.cursorCounter / 6 % 2 == 0)
+        {
             this.fontRenderer.drawString("_", cursor_x, cursor_y, 0);
-        } else {
+        }
+        else
+        {
             this.fontRenderer.drawString("_", cursor_x, cursor_y, 0x55000000);
         }
 
-        // draw content
         int x = this.xPosition;
         int y = this.yPosition;
-        for (String s : this.lines) {
+
+        for (String s : this.lines)
+        {
             this.fontRenderer.drawString(s, x, y, 0);
             y += this.fontRenderer.FONT_HEIGHT;
         }
 
-        // reset state
-        GlStateManager.popMatrix();
         GL11.glPopAttrib();
+        GlStateManager.popMatrix();
     }
 
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    {
         if (!this.isFocused) return;
 
-        if (GuiScreen.isKeyComboCtrlC(keyCode)) {
+        if (GuiScreen.isKeyComboCtrlC(keyCode))
+        {
             GuiScreen.setClipboardString(this.getString());
             return;
         }
-        if (GuiScreen.isKeyComboCtrlV(keyCode)) {
+
+        if (GuiScreen.isKeyComboCtrlV(keyCode))
+        {
             this._editString(GuiScreen.getClipboardString());
             this.setCursorPosition(0, 0);
             return;
         }
 
-//            GuiScreen.isShiftKeyDown();
-//            GuiScreen.isCtrlKeyDown();
+        //GuiScreen.isShiftKeyDown();
+        //GuiScreen.isCtrlKeyDown();
 
         int line_width;
         int last_line = this.lines.length - 1;
         String line;
-        switch (keyCode) {
+
+        switch (keyCode)
+        {
             case Keyboard.KEY_BACK:
                 line = this.lines[this.cursorRow];
-                if (this.cursorColumn == 0) {
-                    // backspace at SOL will join with previous line
-                    // TODO joining long lines will be an issue
-                    if (this.cursorRow == 0) {
-                        // we are on the first line, nothing to join with
-                        return;
-                    }
+                if (this.cursorColumn == 0)
+                {
+                    if (this.cursorRow == 0) return;
                     String s = this.lines[this.cursorRow - 1];
 
-                    // join lines
                     this.lines[this.cursorRow - 1] = s.substring(0, s.length()) + this.lines[this.cursorRow];
                     this.cursorColumn = s.length();
 
-                    // remove the moved line
                     List<String> temp = new LinkedList<>();
-                    for (int i = 0; i < this.lines.length; i++) {
-                        if (i != this.cursorRow) {
-                            temp.add(this.lines[i]);
-                        }
+
+                    for (int i = 0; i < this.lines.length; i++)
+                    {
+                        if (i != this.cursorRow) temp.add(this.lines[i]);
                     }
                     this._editString(String.join("\n", temp));
                     this.cursorRow--;
-                } else {
+                }
+                else
+                {
                     String newline = line.substring(0, this.cursorColumn - 1) + line.substring(this.cursorColumn, line.length());
                     this.lines[this.cursorRow] = newline;
                     this._editString(String.join("\n", this.lines));
@@ -280,27 +293,22 @@ public class GuiTextArea extends Gui {
                 return;
             case Keyboard.KEY_DELETE:
                 line = this.lines[this.cursorRow];
-                if (this.cursorColumn == this.lines[this.cursorRow].length()) {
-                    // delete at EOL will join with previous line
-                    // TODO joining long lines will be an issue
-                    if (this.cursorRow == this.lines.length - 1) {
-                        // we are at the last line, nothing to join with
-                        return;
-                    }
+                if (this.cursorColumn == this.lines[this.cursorRow].length())
+                {
+                    if (this.cursorRow == this.lines.length - 1) return;
                     String s = this.lines[this.cursorRow + 1];
 
-                    // join lines
                     this.lines[this.cursorRow] = line.substring(0, line.length()) + this.lines[this.cursorRow + 1];
 
-                    // remove the moved line
                     List<String> temp = new LinkedList<>();
-                    for (int i = 0; i < this.lines.length; i++) {
-                        if (i != this.cursorRow + 1) {
-                            temp.add(this.lines[i]);
-                        }
+                    for (int i = 0; i < this.lines.length; i++)
+                    {
+                        if (i != this.cursorRow + 1) temp.add(this.lines[i]);
                     }
                     this._editString(String.join("\n", temp));
-                } else {
+                }
+                else
+                {
                     String newline = line.substring(0, this.cursorColumn) + line.substring(this.cursorColumn + 1, line.length());
                     this.lines[this.cursorRow] = newline;
                     this._editString(String.join("\n", this.lines));
@@ -308,7 +316,8 @@ public class GuiTextArea extends Gui {
                 return;
             case Keyboard.KEY_RETURN:
             case Keyboard.KEY_NUMPADENTER:
-                if (this.cursorRow < this.maxRows) {
+                if (this.cursorRow < this.maxRows)
+                {
                     this.insertIntoCurrent("\n");
                     this.cursorColumn = 0;
                     this.cursorRow += 1;
@@ -316,11 +325,15 @@ public class GuiTextArea extends Gui {
                 return;
             case Keyboard.KEY_LEFT:
                 this.cursorColumn--;
-                if (this.cursorColumn < 0) {
-                    if (this.cursorRow > 0) {
+                if (this.cursorColumn < 0)
+                {
+                    if (this.cursorRow > 0)
+                    {
                         this.cursorRow--;
                         this.cursorColumn = this.lines[this.cursorRow].length();
-                    } else {
+                    }
+                    else
+                    {
                         this.cursorColumn = 0;
                     }
                 }
@@ -328,15 +341,18 @@ public class GuiTextArea extends Gui {
             case Keyboard.KEY_RIGHT:
                 line_width = this.lines[this.cursorRow].length();
                 this.cursorColumn++;
-                if (this.cursorRow < last_line) {
-                    if (this.cursorColumn > line_width) {
+
+                if (this.cursorRow < last_line)
+                {
+                    if (this.cursorColumn > line_width)
+                    {
                         this.cursorColumn = 0;
                         this.moveCursorToRow(this.cursorRow + 1);
                     }
-                } else {
-                    if (this.cursorColumn > line_width) {
-                        this.cursorColumn = line_width;
-                    }
+                }
+                else
+                {
+                    if (this.cursorColumn > line_width) this.cursorColumn = line_width;
                 }
                 return;
             case Keyboard.KEY_UP:
@@ -358,8 +374,8 @@ public class GuiTextArea extends Gui {
                 this.moveCursorToRow(this.lines.length - 1);
                 return;
             default:
-                if (ChatAllowedCharacters.isAllowedCharacter(typedChar)) {
-                    // allow typing until the (proportional font) hits the side
+                if (ChatAllowedCharacters.isAllowedCharacter(typedChar))
+                {
                     String typedString = Character.toString(typedChar);
                     String s = this.lines[this.cursorRow] + typedString;
                     this.insertIntoCurrent(typedString);
@@ -368,7 +384,8 @@ public class GuiTextArea extends Gui {
         }
     }
 
-    private void moveCursorToRow(int row) {
+    private void moveCursorToRow(int row)
+    {
         this.cursorRow = row;
         int num_lines = this.lines.length;
         if (this.cursorRow < 0) this.cursorRow = 0;
@@ -377,82 +394,85 @@ public class GuiTextArea extends Gui {
         this.fixCursorColumn();
     }
 
-    private void fixCursorColumn() {
+    private void fixCursorColumn()
+    {
         int num_lines = this.lines.length;
         int line_width;
-        if (this.cursorRow == num_lines) {
+
+        if (this.cursorRow == num_lines)
+        {
             line_width = 0;
-        } else {
+        }
+        else
+        {
             line_width = this.lines[this.cursorRow].length();
         }
+
         if (this.cursorColumn > line_width) this.cursorColumn = line_width;
     }
 
-
-    /**
-     * Processes any text getting inserted into the current page, enforcing the page size limit
-     */
-    private void insertIntoCurrent(String text) {
+    private void insertIntoCurrent(String text)
+    {
         String line = this.lines[this.cursorRow];
         String newline = line.substring(0, this.cursorColumn) + text + line.substring(this.cursorColumn, line.length());
         this.lines[this.cursorRow] = newline;
         this._editString(String.join("\n", this.lines));
     }
 
-    /**
-     * Called when mouse is clicked, regardless as to whether it is over this button or not.
-     */
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    {
         int modX = mouseX - xPosition;
         int modY = mouseY - yPosition;
-        FMLLog.info("MOUSE AT %d,%d", mouseX, mouseY);
+        FMLLog.log.info("MOUSE AT %d,%d", mouseX, mouseY);
         boolean inside = modX > 0 && modY > 0 && modX < width && modY < height;
 
         this.setFocused(inside);
 
-        if (!inside || mouseButton != 0) {
-            return;
-        }
+        if (!inside || mouseButton != 0) return;
 
-        // shift for scrolling
         modX += textXOffset / SCROLL_SCALE;
         modY -= textYOffset / SCROLL_SCALE;
 
         int row = modY / this.fontRenderer.FONT_HEIGHT;
-        if (row >= this.lines.length) {
+
+        if (row >= this.lines.length)
+        {
             row = this.lines.length - 1;
-        } else if (row < 0) {
+        }
+        else if (row < 0)
+        {
             row = 0;
         }
+
         this.cursorRow = row;
         String line = this.lines[this.cursorRow];
         int width = 0;
         boolean set = false;
-        for (int i = 0; i < line.length(); i++) {
+
+        for (int i = 0; i < line.length(); i++)
+        {
             width += this.fontRenderer.getCharWidth(line.charAt(i));
-            if (width > modX) {
+            if (width > modX)
+            {
                 this.cursorColumn = i;
                 set = true;
                 break;
             }
         }
+
         if (!set) this.cursorColumn = line.length();
         this.fixCursorColumn();
     }
 
-    public void setCursorPosition(int column, int row) {
+    public void setCursorPosition(int column, int row)
+    {
         this.cursorColumn = column;
         this.cursorRow = row;
     }
 
-    /**
-     * Sets focus to this gui element
-     */
-    public void setFocused(boolean isFocusedIn) {
-        if (isFocusedIn && !this.isFocused) {
-            this.cursorCounter = 0;
-        }
-
+    public void setFocused(boolean isFocusedIn)
+    {
+        if (isFocusedIn && !this.isFocused) this.cursorCounter = 0;
         this.isFocused = isFocusedIn;
     }
 }

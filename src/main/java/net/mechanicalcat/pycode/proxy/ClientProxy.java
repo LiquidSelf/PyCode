@@ -29,33 +29,39 @@ import net.mechanicalcat.pycode.init.ModBlocks;
 import net.mechanicalcat.pycode.init.ModEntities;
 import net.mechanicalcat.pycode.init.ModItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-public class ClientProxy implements CommonProxy {
+public class ClientProxy extends ServerProxy
+{
     private PyCodeEventHandler handler = new PyCodeEventHandler();
 
     @Override
-    public void preInit() {
-//        MinecraftForge.EVENT_BUS.register(handler);
-        // unlike the other renders, this has to be registered preInit or it just fails without error
+    public void preInit(FMLPreInitializationEvent e)
+    {
+        super.preInit(e);
         ModEntities.registerRenders();
     }
 
     @Override
-    public void init() {
+    public void init(FMLInitializationEvent e)
+    {
+        super.init(e);
         ModItems.registerRenders();
         ModBlocks.registerRenders();
     }
 
     @Override
-    public void postInit() {
-
+    public void postInit(FMLPostInitializationEvent e)
+    {
+        super.postInit(e);
     }
 
     @Override
-    public void openBook(EntityPlayer player, ItemStack book) {
-        Minecraft.getMinecraft().displayGuiScreen(new GuiPythonBook(player, book));
+    public void openBook(ItemStack stack)
+    {
+        Minecraft.getMinecraft().displayGuiScreen(new GuiPythonBook(stack));
     }
 }

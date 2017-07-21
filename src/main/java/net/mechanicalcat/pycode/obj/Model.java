@@ -23,10 +23,6 @@
 
 package net.mechanicalcat.pycode.obj;
 
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -35,7 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Model {
+public class Model
+{
     public List<Vector3f> vertices = new ArrayList<>();
     public List<Vector3f> normals = new ArrayList<>();
     public List<Face> faces = new ArrayList<>();

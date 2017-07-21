@@ -24,22 +24,15 @@
 package net.mechanicalcat.pycode.script;
 
 import net.mechanicalcat.pycode.entities.HandEntity;
-import net.minecraft.block.*;
-import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.MoverType;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.ItemDoor;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.FMLLog;
-import org.python.core.Py;
 import org.python.core.PyObject;
 
 
@@ -78,7 +71,7 @@ public class HandMethods extends BaseMethods {
         float f1 = -MathHelper.sin(rotation * 0.017453292F);
         float f2 = MathHelper.cos(rotation * 0.017453292F);
         pos = pos.addVector(distance * f1, 0, distance * f2);
-        this.hand.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        this.hand.setPosition(pos.x, pos.y, pos.z);
     }
 
     public void face(String direction) {
@@ -98,26 +91,39 @@ public class HandMethods extends BaseMethods {
         this.hand.moveYaw(180);
     }
 
-    public void up() {this.up(1); }
-    public void up(float distance) {
-        this.hand.moveEntity(0, distance, 0);
+    public void up()
+    {
+        this.up(1);
     }
 
-    public void down() {this.down(1); }
-    public void down(float distance) {
-        this.hand.moveEntity(0, -distance, 0);
+    public void up(float distance)
+    {
+        this.hand.move(MoverType.PISTON, 0, distance, 0);
     }
 
-    public void move(int x, int y, int z) {
-        this.hand.moveEntity(x, y, z);
+    public void down()
+    {
+        this.down(1);
+    }
+
+    public void down(float distance)
+    {
+        this.hand.move(MoverType.PISTON, 0, -distance, 0);
+    }
+
+    public void move(int x, int y, int z)
+    {
+        this.hand.move(MoverType.PISTON, x, y, z);
     }
 
     // this is just a little crazypants, but Java doesn't have string array literals in function calls
-    private String[] s(String ... strings) {
+    private String[] s(String ... strings)
+    {
         return strings;
     }
 
-    public void put(PyObject[] args, String[] kws) {
+    public void put(PyObject[] args, String[] kws)
+    {
         if (this.world == null || this.world.isRemote) return;
         ArgParser r = new ArgParser("put", s("blockname"), PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
@@ -126,8 +132,10 @@ public class HandMethods extends BaseMethods {
         this.put(this.hand.getFacedPos(),state, this.hand.getHorizontalFacing());
     }
 
-    public void alter(PyObject[] args, String[] kws) {
+    public void alter(PyObject[] args, String[] kws)
+    {
         if (this.world == null || this.world.isRemote) return;
+
         ArgParser r = new ArgParser("put", s(), PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
 
@@ -150,15 +158,15 @@ public class HandMethods extends BaseMethods {
     }
 
     public void line(PyObject[] args, String[] kws) {
-        ArgParser r = new ArgParser("line", s("distance", "blockname"),
-                PyRegistry.BLOCK_VARIATIONS);
+        ArgParser r = new ArgParser("line", s("distance", "blockname"), PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
         ShapeGen.line(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
     }
 
     public void ladder(PyObject[] args, String[] kws) {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("line", s("height", "blockname"),
+        ArgParser r = new ArgParser("line",
+                s("height", "blockname"),
                 PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
         ShapeGen.ladder(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
@@ -166,7 +174,8 @@ public class HandMethods extends BaseMethods {
 
     public void floor(PyObject[] args, String[] kws) {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("line", s("width", "depth", "blockname"),
+        ArgParser r = new ArgParser("line",
+                s("width", "depth", "blockname"),
                 PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
         ShapeGen.floor(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
@@ -174,7 +183,8 @@ public class HandMethods extends BaseMethods {
 
     public void wall(PyObject[] args, String[] kws) {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("line", s("depth", "height", "blockname"),
+        ArgParser r = new ArgParser("line",
+                s("depth", "height", "blockname"),
                 PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
         ShapeGen.wall(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
@@ -182,35 +192,40 @@ public class HandMethods extends BaseMethods {
 
     public void cube(PyObject[] args, String[] kws) {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("line", s("width", "depth", "height", "blockname"),
+        ArgParser r = new ArgParser("line",
+                s("width", "depth", "height", "blockname"),
                 PyRegistry.BLOCK_VARIATIONS);
         r.parse(args, kws);
         ShapeGen.cube(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
     }
 
-    public void circle(PyObject[] args, String[] kws) {
+    public void circle(PyObject[] args, String[] kws)
+    {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("line", s("radius", "blockname"),
-                // TODO PyRegistry.BLOCK_VARIATIONS
-                s("color", "facing", "type", "half", "shape", "fill"));
+
+        ArgParser r = new ArgParser("line",
+                s("radius", "blockname"),
+                s(PyRegistry.BLOCK_VARIATIONS));
         r.parse(args, kws);
         ShapeGen.circle(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
     }
 
-    public void ellipse(PyObject[] args, String[] kws) {
+    public void ellipse(PyObject[] args, String[] kws)
+    {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("line", s("radius_x", "radius_z", "blockname"),
-                // TODO PyRegistry.BLOCK_VARIATIONS
-                s("color", "facing", "type", "half", "shape", "fill"));
+
+        ArgParser r = new ArgParser("line",
+                s("radius_x", "radius_z", "blockname"),
+                s(PyRegistry.BLOCK_VARIATIONS));
         r.parse(args, kws);
         ShapeGen.ellipse(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
     }
 
     public void roof(PyObject[] args, String[] kws) throws BlockTypeError {
         if (this.world == null || this.world.isRemote) return;
-        ArgParser r = new ArgParser("roof", s("width", "depth", "blockname"),
-                // TODO PyRegistry.BLOCK_VARIATIONS
-                s("style", "color", "facing", "type", "half", "shape", "fill"));
+        ArgParser r = new ArgParser("roof",
+                s("width", "depth", "blockname"),
+                s(PyRegistry.BLOCK_VARIATIONS));
         r.parse(args, kws);
         RoofGen.roof(r, this.world, this.hand.getFacedPos(), this.hand.getHorizontalFacing());
     }

@@ -27,12 +27,12 @@ import net.minecraft.command.*;
 import net.minecraft.command.server.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyCommands {
+public class MyCommands
+{
     public static Map<String,ICommand> COMMANDS = new HashMap<>();
     public static Class[] COMMAND_CLASSES = {
         CommandKill.class,
@@ -79,43 +79,59 @@ public class MyCommands {
         CommandEntityData.class,
         CommandStopSound.class,
         CommandTime.class,
-        CommandAchievement.class,       // improved
+        //CommandAchievement.class,       // improved
         CommandSetBlock.class,          // improved
     };
 
-    public static void init() {
-        for (Class cl : COMMAND_CLASSES) {
+    public static void init()
+    {
+        for (Class cl : COMMAND_CLASSES)
+        {
             ICommand command;
-            try {
+
+            try
+            {
                 command = (ICommand)cl.newInstance();
-            } catch (InstantiationException|IllegalAccessException e) {
+            }
+            catch (InstantiationException|IllegalAccessException e)
+            {
                 continue;
             }
-            COMMANDS.put(command.getCommandName(), command);
+            //COMMANDS.put(command.getCommandName(), command);
         }
     }
 
-    public static CurriedCommand curry(String command, World world) {
+    public static CurriedCommand curry(String command, World world)
+    {
         return new CurriedCommand(COMMANDS.get(command), world);
     }
 
-    public static class CurriedCommand {
+    public static class CurriedCommand
+    {
         ICommand command;
         World world;
-        public CurriedCommand(ICommand command, World world) {
+
+        public CurriedCommand(ICommand command, World world)
+        {
             super();
             this.command = command;
             this.world = world;
         }
 
-        public void invoke(Object sender, String... args) throws CommandException {
+        public void invoke(Object sender, String... args) throws CommandException
+        {
             if (this.world == null || this.world.isRemote) return;
             ICommandSender commandSender;
-            if (sender instanceof MyEntity) {
+
+            if (sender instanceof MyEntity)
+            {
                 commandSender = ((MyEntity) sender).entity;
-            } else {
+            }
+            else
+            {
                 commandSender = (ICommandSender)sender;
             }
+
             MinecraftServer s = this.world.getMinecraftServer();
             if (s != null) this.command.execute(s, commandSender, args);
         }

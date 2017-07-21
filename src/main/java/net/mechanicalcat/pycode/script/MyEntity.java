@@ -23,54 +23,57 @@
 
 package net.mechanicalcat.pycode.script;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLLog;
 
 
-public class MyEntity extends MyBase {
+public class MyEntity extends MyBase
+{
     public Entity entity;
 
-    public MyEntity(Entity entity) {
+    public MyEntity(Entity entity)
+    {
         this.entity = entity;
     }
 
-    public void tp(MyBlockPos pos) {
+    public void tp(MyBlockPos pos)
+    {
         BlockPos p = pos.blockPos;
         this.entity.setPosition(p.getX(), p.getY(), p.getZ());
     }
-    public void tp(int x, int y, int z) {
+
+    public void tp(int x, int y, int z)
+    {
         this.entity.setPosition(x, y, z);
     }
 
-    public void move(int x, int y, int z) {
+    public void move(int x, int y, int z)
+    {
         BlockPos pos = this.entity.getPosition();
         pos = pos.add(x, y, z);
         this.entity.setPosition(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public void ignite() {
+    public void ignite()
+    {
         this.ignite(4);
     }
-    public void ignite(int seconds) {
-        // ignite as if immersed in lava
-        FMLLog.info("FIRE??? %s", this.entity);
+
+    public void ignite(int seconds)
+    {
+        FMLLog.log.info("FIRE??? %s", this.entity);
         this.entity.setFire(4);
     }
 
     @Override
-    public boolean isEntity() {
+    public boolean isEntity()
+    {
         return true;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return this.entity.toString();
     }
 }

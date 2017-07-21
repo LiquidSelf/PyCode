@@ -25,14 +25,11 @@ package net.mechanicalcat.pycode.script;
 
 import net.mechanicalcat.pycode.PythonEngine;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
@@ -51,7 +48,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PythonCode {
+public class PythonCode
+{
     private String code = "";
     private boolean codeChanged = false;
     private SimpleScriptContext context;
@@ -59,135 +57,195 @@ public class PythonCode {
     private World world = null;
     private BlockPos pos;
     private ICommandSender runner;
+    private String[] utils = { "colors", "facings", "players" };
+
+    public static HashMap<String, EnumDyeColor> COLORMAP = new HashMap<String, EnumDyeColor>();
+    public static HashMap<String, EnumFacing> FACINGMAP = new HashMap<String, EnumFacing>();
+    public static List<String> colors = new LinkedList<>();
+    public static List<String> facings = new LinkedList<>();
     public static String CODE_NBT_TAG = "code";
     public MyEntityPlayers players;
 
-    public PythonCode() {
+    public PythonCode()
+    {
         this.context = new SimpleScriptContext();
         this.bindings = new SimpleBindings();
         this.context.setBindings(this.bindings, ScriptContext.ENGINE_SCOPE);
     }
 
-    public String getCode() {return code;}
+    public String getCode()
+    {
+        return code;
+    }
 
-    public boolean hasCode() {return !code.isEmpty();}
+    public boolean hasCode()
+    {
+        return !code.isEmpty();
+    }
 
-    public void check(String code) throws ScriptException {
+    public void check(String code) throws ScriptException
+    {
         PythonEngine.compile(code);
     }
 
-    public void setCodeString(String code) {
+    public void setCodeString(String code)
+    {
         this.code = code;
         this.codeChanged = true;
     }
 
-    public void writeToNBT(NBTTagCompound compound) {
+    public void writeToNBT(NBTTagCompound compound)
+    {
         compound.setString(CODE_NBT_TAG, this.code);
     }
 
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(NBTTagCompound compound)
+    {
         this.setCodeString(compound.getString(CODE_NBT_TAG));
     }
 
     // CODE BINDINGS
-    public void put(String key,Object val) {
+    public void put(String key, Object val)
+    {
         this.bindings.put(key, val);
     }
 
-    public boolean hasKey(String key) {
+    public boolean hasKey(String key)
+    {
         return this.bindings.containsKey(key);
     }
 
-    static public void failz0r(World world, BlockPos pos, String fmt, Object... args) {
+    public static void failz0r(World world, BlockPos pos, String fmt, Object... args)
+    {
         if (world.isRemote) return;
         ((WorldServer)world).spawnParticle(EnumParticleTypes.SPELL,
                 pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5,
                 20, 0, 0, 0, .5, new int[0]);
-        FMLLog.severe(fmt, args);
+        FMLLog.log.info(fmt, args);
     }
 
     // TODO refactor this to be more generic
-    public void invoke(String method, MyEntity entity) {
+    public void invoke(String method, MyEntity entity)
+    {
         PyObject obj = (PyObject) this.bindings.get(method);
-        if (obj == null) {
+
+        if (obj == null)
+        {
             failz0r(world, pos, "Unknown function '%s'", method);
             return;
         }
+
         PyFunction func = (PyFunction)obj;
 
         // handle instances of optional player argument
         PyObject co_varnames = func.__code__.__getattr__("co_varnames");
-        if (entity instanceof MyEntityPlayer && !co_varnames.__contains__(Py.java2py("player"))) {
+        if (entity instanceof MyEntityPlayer && !co_varnames.__contains__(Py.java2py("player")))
+        {
             // don't pass the player in if it's not expected
-            try {
+            try
+            {
                 func.__call__();
-            } catch (RuntimeException e) {
+            }
+            catch (RuntimeException e)
+            {
                 failz0r(world, pos, "Error running code: %s", e.toString());
             }
             return;
         }
 
         // carry on!
-        try {
+        try
+        {
             func.__call__(Py.java2py(entity));
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             failz0r(world, pos, "Error running code: %s", e.toString());
         }
     }
 
-    public void invoke(String method, @Nullable MyBase target) {
+    public void invoke(String method, @Nullable MyBase target)
+    {
         PyObject obj = (PyObject) this.bindings.get(method);
-        if (obj == null) {
+
+        if (obj == null)
+        {
             failz0r(world, pos, "Unknown function '%s'", method);
             return;
         }
+
         PyFunction func = (PyFunction)obj;
 
         // handle instances of optional player argument
         PyObject co_varnames = func.__code__.__getattr__("co_varnames");
-        if (co_varnames.__contains__(Py.java2py("target"))) {
-            try {
+        if (co_varnames.__contains__(Py.java2py("target")))
+        {
+            try
+            {
                 func.__call__(Py.java2py(target));
-            } catch (RuntimeException e) {
+            }
+            catch (RuntimeException e)
+            {
                 failz0r(world, pos, "Error running code: %s", e.toString());
             }
-        } else {
+        }
+        else
+        {
             // don't pass the target in if it's not expected
-            try {
+            try
+            {
                 func.__call__();
-            } catch (RuntimeException e) {
+            }
+            catch (RuntimeException e)
+            {
                 failz0r(world, pos, "Error running code: %s", e.toString());
             }
         }
     }
 
-    public void invoke(String method) {
+    public void invoke(String method)
+    {
         PyObject obj = (PyObject) this.bindings.get(method);
-        if (obj == null) {
+
+        if (obj == null)
+        {
             failz0r(world, pos, "Unknown function '%s'", method);
             return;
         }
+
         PyFunction func = (PyFunction)obj;
-        try {
+
+        try
+        {
             func.__call__();
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             failz0r(world, pos, "Error running code: %s", e.toString());
         }
     }
 
-    public static final String bookAsString(ItemStack book) {
+    public static final String bookAsString(ItemStack book)
+    {
         NBTTagCompound bookData = book.getTagCompound();
         NBTTagList pages;
-        try {
+
+        try
+        {
             // pages are all of type TAG_String == 8
             pages = bookData.getTagList("pages", 8);
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e)
+        {
             // this should not happen!
             return null;
         }
+
         // collapse the pages into one string
         StringBuilder sbStr = new StringBuilder();
-        for(int i = 0;i<pages.tagCount();i++) {
+
+        for(int i = 0; i < pages.tagCount(); i++)
+        {
             String s = pages.getStringTagAt(i);
             if (i > 0) sbStr.append("\n");
             sbStr.append(s);
@@ -195,12 +253,16 @@ public class PythonCode {
         return sbStr.toString();
     }
 
-    public boolean setCodeFromBook(World world, EntityPlayer player, ICommandSender runner, BlockPos pos, ItemStack heldItem) {
+    public boolean setCodeFromBook(World world, EntityPlayer player, ICommandSender runner, BlockPos pos, ItemStack heldItem)
+    {
         String code = bookAsString(heldItem);
-        if (code == null) {
+
+        if (code == null)
+        {
             failz0r(world, pos, "Could not get pages from the book!?");
             return false;
         }
+
         this.setCodeString(code);
         // set context using the player so they get feedback on success/fail
         this.setContext(world, player, pos);
@@ -209,13 +271,16 @@ public class PythonCode {
         return true;
     }
 
-    public void setRunner(ICommandSender runner) {
+    public void setRunner(ICommandSender runner)
+    {
         this.runner = runner;
         this.bindings.put("__runner__", runner);
     }
 
-    public void setContext(World world, ICommandSender runner, BlockPos pos) {
-        if (this.world == world && this.runner == runner && this.pos == pos) {
+    public void setContext(World world, ICommandSender runner, BlockPos pos)
+    {
+        if (this.world == world && this.runner == runner && this.pos == pos)
+        {
             this.ensureCompiled();
             return;
         }
@@ -233,27 +298,39 @@ public class PythonCode {
         this.bindings.put("__utils__", this);
 
         // So.. now I copy all those methods to set up the "utils"
-        try {
+        try
+        {
             String s = "";
-            for (String n : utils) {
+
+            for (String n : utils)
+            {
                 s += String.format("%s = __utils__.%s\n", n, n);
             }
+
             PythonEngine.eval(s, this.context);
-        } catch (ScriptException e) {
+        }
+        catch (ScriptException e)
+        {
             failz0r(world, pos, "Error setting up utils: %s", e.getMessage());
             return;
         }
 
         // create the MyCommand curries and attach callables to utils / global scope
-        try {
+        try
+        {
             String s = "";
-            for (String n: MyCommands.COMMANDS.keySet()) {
+
+            for (String n: MyCommands.COMMANDS.keySet())
+            {
                 // bind the name to just the invoke method, using the dynamic runner value
                 this.bindings.put("__" + n, MyCommands.curry(n, this.world));
                 s += String.format("%s = lambda *a: __%s.invoke(runner, *a)\n", n, n);
             }
+
             PythonEngine.eval(s, this.context);
-        } catch (ScriptException e) {
+        }
+        catch (ScriptException e)
+        {
             failz0r(world, pos, "Error setting up commands: %s", e.getMessage());
             return;
         }
@@ -261,38 +338,40 @@ public class PythonCode {
         this.ensureCompiled();
     }
 
-    public static final String stackTraceToString(Throwable t) {
+    public static final String stackTraceToString(Throwable t)
+    {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);
         return sw.toString();
     }
 
-    private void ensureCompiled() {
+    private void ensureCompiled()
+    {
         if (!this.codeChanged) return;
-        FMLLog.fine("Eval my code: %s", this.code);
+        FMLLog.log.info("Eval my code: %s", this.code);
 
         // now execute the code
-        try {
+        try
+        {
             PythonEngine.eval(this.code, this.context);
-            if (!world.isRemote) {
+
+            if (!world.isRemote)
+            {
                 ((WorldServer)world).spawnParticle(EnumParticleTypes.CRIT,
                         pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5,
                         20, 0, 0, 0, .5, new int[0]);
             }
-        } catch (ScriptException e) {
+        }
+        catch (ScriptException e)
+        {
             failz0r(world, pos, "Error running code, traceback:\n%s", stackTraceToString(e));
         }
         this.codeChanged = false;
     }
 
-    private String[] utils = {"colors", "facings", "players"};
-
-    public static HashMap<String, EnumDyeColor> COLORMAP = new HashMap<String, EnumDyeColor>();
-    public static HashMap<String, EnumFacing> FACINGMAP = new HashMap<String, EnumFacing>();
-    public static List<String> colors = new LinkedList<>();
-    public static List<String> facings = new LinkedList<>();
-    public static void init() {
+    public static void init()
+    {
         COLORMAP.put("white", EnumDyeColor.WHITE);
         COLORMAP.put("orange", EnumDyeColor.ORANGE);
         COLORMAP.put("magenta", EnumDyeColor.MAGENTA);
@@ -317,13 +396,14 @@ public class PythonCode {
         FACINGMAP.put("west", EnumFacing.WEST);
         FACINGMAP.put("east", EnumFacing.EAST);
 
-        for (String name : COLORMAP.keySet()) {
+        for (String name : COLORMAP.keySet())
+        {
             colors.add(name);
         }
-        for (String name : FACINGMAP.keySet()) {
+
+        for (String name : FACINGMAP.keySet())
+        {
             facings.add(name);
         }
     }
 }
-
-

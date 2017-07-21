@@ -27,27 +27,32 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-// This exists solely to provide a de-obfuscated BlockPos for the player
-public class MyBlockPos {
+public class MyBlockPos
+{
     public BlockPos blockPos;
 
-    MyBlockPos(BlockPos blockPos) {
+    public MyBlockPos(BlockPos blockPos)
+    {
         this.blockPos = blockPos;
     }
 
-    public BlockPos add(double x, double y, double z) {
+    public BlockPos add(double x, double y, double z)
+    {
         return this.blockPos.add(x, y, z);
     }
 
-    public BlockPos add(int x, int y, int z) {
+    public BlockPos add(int x, int y, int z)
+    {
         return this.blockPos.add(x, y, z);
     }
 
-    public BlockPos add(Vec3i vec) {
+    public BlockPos add(Vec3i vec)
+    {
         return this.blockPos.add(vec);
     }
 
-    public BlockPos subtract(Vec3i vec) {
+    public BlockPos subtract(Vec3i vec)
+    {
         return this.blockPos.subtract(vec);
     }
 
@@ -111,7 +116,8 @@ public class MyBlockPos {
         return this.blockPos.offset(EnumFacing.EAST, n);
     }
 
-    public String toString() {
+    public String toString()
+    {
         return this.blockPos.toString();
     }
 }

@@ -31,14 +31,22 @@
 
 package net.mechanicalcat.pycode.script.jython;
 
-import javax.script.*;
-import java.util.*;
-import org.python.core.*;
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyString;
 
-final class JythonScope extends PyObject {
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import java.util.List;
+
+public final class JythonScope extends PyObject
+{
     private ScriptContext ctx;
 
-    JythonScope(ScriptEngine engine, ScriptContext ctx) { 
+    JythonScope(ScriptEngine engine, ScriptContext ctx)
+    {
         this.ctx = ctx;        
 
         // global module's name is expected to be 'main'
@@ -50,7 +58,8 @@ final class JythonScope extends PyObject {
         __setitem__("engine", Py.java2py(engine));        
     }
 
-    public synchronized PyObject invoke(String name) {
+    public synchronized PyObject invoke(String name)
+    {
         if (name.equals("keys")) {
             // special case for "keys" so that dir() will
             // work for the global "module"
@@ -119,7 +128,8 @@ final class JythonScope extends PyObject {
 //        }
 //    }
 
-    public String toString() {
+    public String toString()
+    {
         return "<global scope at " + hashCode() + ">";        
     }
 }

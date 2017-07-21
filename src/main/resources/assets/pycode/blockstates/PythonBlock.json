@@ -1,5 +1,5 @@
 {
   "variants": {
-    "normal": { "model": "pycode:PythonBlock" }
+    "normal": { "model": "pycode:pythonblock" }
   }
 }

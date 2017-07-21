@@ -31,7 +31,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityFireworkRocket;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemDye;
@@ -39,6 +38,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -88,17 +88,17 @@ public class BlockMethods extends BaseMethods {
         Entity firework = new EntityFireworkRocket(this.world,
                 pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5,
                 fireworkItem);
-        this.world.spawnEntityInWorld(firework);
+        this.world.spawnEntity(firework);
     }
 
     @Nullable
     public MyBase spawn(String entityName) throws EntityNameError {
         if (this.world == null || this.world.isRemote) return null;
-        Entity entity = EntityList.createEntityByName(entityName, this.world);
+        Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(entityName), this.world);
         if (entity == null) throw new EntityNameError(entityName);
         BlockPos pos = this.block.getPos().add(0.5, 1.0, 0.5);
         entity.setPosition(pos.getX(), pos.getY(), pos.getZ());
-        world.spawnEntityInWorld(entity);
+        world.spawnEntity(entity);
         return PyRegistry.myWrapper(world, entity);
     }
 

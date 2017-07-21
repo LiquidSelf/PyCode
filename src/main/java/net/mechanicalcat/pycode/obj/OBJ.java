@@ -27,17 +27,22 @@ import org.lwjgl.util.vector.Vector3f;
 
 import java.io.*;
 
-public class OBJ {
-    public static Model loadModel(String filename) throws IOException {
+public class OBJ
+{
+    public static Model loadModel(String filename) throws IOException
+    {
         File f = new File(filename, "r");
         return loadModel(f);
     }
 
-    public static Model loadModel(File f) throws IOException {
+    public static Model loadModel(File f) throws IOException
+    {
         BufferedReader reader = new BufferedReader(new FileReader(f));
         Model m = new Model();
         String line;
-        while((line = reader.readLine()) != null){
+
+        while((line = reader.readLine()) != null)
+        {
             if (!line.contains(" ")) continue;
             String[] parts = line.split(" ");
             String currentMaterial = "";
@@ -76,7 +81,8 @@ public class OBJ {
         return m;
     }
 
-    private static Vector3f s2v(String x, String y, String z) {
+    private static Vector3f s2v(String x, String y, String z)
+    {
         return new Vector3f(Float.valueOf(x), Float.valueOf(y), Float.valueOf(z));
     }
 }

@@ -31,7 +31,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Material {
+public class Material
+{
     public String name = "";
     public Vector3f ambient = new Vector3f();
     public Vector3f diffuse = new Vector3f();

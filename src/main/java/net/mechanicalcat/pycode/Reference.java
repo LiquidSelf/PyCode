@@ -23,24 +23,26 @@
 
 package net.mechanicalcat.pycode;
 
-public class Reference {
+public class Reference
+{
     public static final String MODID = "pycode";
     public static final String MODNAME = "Python Code";
     public static final String VERSION = "@VERSION@";
     public static final String CLIENT_PROXY_CLASS = "net.mechanicalcat.pycode.proxy.ClientProxy";
     public static final String SERVER_PROXY_CLASS = "net.mechanicalcat.pycode.proxy.ServerProxy";
-    public static final String ACCEPTED_VERSIONS = "[1.10.2]";
+    public static final String ACCEPTED_VERSIONS = "[1.12]";
 
-    public static enum PyCodeRegistrations {
+    public enum PyCodeRegistrations
+    {
         WAND("python_wand", "PythonWandItem"),
         BOOK("python_book", "PythonBookItem"),
         BLOCK("python_block", "PythonBlock"),
         HAND("python_hand", "HandItem");
 
-        private String unlocalizedName;
-        private String registryName;
+        private String unlocalizedName, registryName;
 
-        PyCodeRegistrations(String unlocalizedName, String registryName) {
+        PyCodeRegistrations(String unlocalizedName, String registryName)
+        {
             this.unlocalizedName = unlocalizedName;
             this.registryName = registryName;
         }
@@ -48,7 +50,6 @@ public class Reference {
         public String getRegistryName() {
             return registryName;
         }
-
         public String getUnlocalizedName() {
             return unlocalizedName;
         }

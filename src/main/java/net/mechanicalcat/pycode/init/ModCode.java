@@ -26,11 +26,11 @@ package net.mechanicalcat.pycode.init;
 import net.mechanicalcat.pycode.script.MyCommands;
 import net.mechanicalcat.pycode.script.PythonCode;
 
-public class ModCode {
-    public static void init() {
+public class ModCode
+{
+    public static void register()
+    {
         PythonCode.init();
         MyCommands.init();
     }
-
-    public static void postInit() {}
 }

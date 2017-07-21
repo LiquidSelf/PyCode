@@ -26,22 +26,27 @@ package net.mechanicalcat.pycode.script;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 
-public class MyBlock extends MyBase {
+public class MyBlock extends MyBase
+{
     public IBlockState block;
     public MyBlockPos pos;
     public String name;
-    public MyBlock(IBlockState block, BlockPos pos) {
+
+    public MyBlock(IBlockState block, BlockPos pos)
+    {
         this.block = block;
         this.name = block.getBlock().getLocalizedName();
         this.pos = new MyBlockPos(pos);
     }
 
     @Override
-    public boolean isBlock() {
+    public boolean isBlock()
+    {
         return true;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return String.format("[%s at %s]", this.block, this.pos.blockPos);
     }
 }

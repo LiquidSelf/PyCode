@@ -25,24 +25,37 @@ package net.mechanicalcat.pycode.init;
 
 
 import net.mechanicalcat.pycode.PyCode;
+import net.mechanicalcat.pycode.Reference;
 import net.mechanicalcat.pycode.entities.HandEntity;
 import net.mechanicalcat.pycode.render.RenderHand;
+import net.mechanicalcat.pycode.tileentity.PyCodeBlockTileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ModEntities {
+public class ModEntities
+{
     private static int entityCount = 0;
 
-    public static void register() {
+    public static void register()
+    {
         registerEntity(HandEntity.class, "python_hand");
+        registerTileEntity(PyCodeBlockTileEntity.class, "PyCodeBlockTileEntity");
     }
 
-    private static void registerEntity(Class entity, String name) {
-        // magic values from https://github.com/sky0-1/Extra-Golems-1.9/blob/master/com/golems/main/GolemEntityRegister.java#L48-L90
-        EntityRegistry.registerModEntity(entity, name, ++entityCount, PyCode.instance, 48, 3, true);
+    private static void registerEntity(Class entity, String name)
+    {
+        EntityRegistry.registerModEntity(new ResourceLocation("pycode", name), entity, name, entityCount++, PyCode.instance, 48, 3, true);
     }
 
-    public static void registerRenders() {
+    private static void registerTileEntity(Class tileEntity, String name)
+    {
+        GameRegistry.registerTileEntity(tileEntity, Reference.MODID + name);
+    }
+
+    public static void registerRenders()
+    {
         RenderingRegistry.registerEntityRenderingHandler(HandEntity.class, RenderHand::new);
     }
 }

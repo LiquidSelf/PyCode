@@ -23,65 +23,65 @@
 
 package net.mechanicalcat.pycode.script;
 
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ServerCommandManager;
-import net.minecraft.command.server.CommandAchievement;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.tileentity.CommandBlockBaseLogic;
 import net.minecraft.util.text.TextComponentString;
 
-import java.util.LinkedList;
-import java.util.List;
-
-public class MyEntityPlayer extends MyEntityLiving {
+public class MyEntityPlayer extends MyEntityLiving
+{
     public String name;
 
-    public MyEntityPlayer(EntityPlayer player) {
+    public MyEntityPlayer(EntityPlayer player)
+    {
         super(player);
         this.name = player.getName();
     }
 
     @Override
-    public boolean isPlayer() {
+    public boolean isPlayer()
+    {
         return true;
     }
-    public boolean isMob() {
+
+    public boolean isMob()
+    {
         return false;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return this.name;
     }
 
-    public void chat(Object... args) {
-        if (this.entity.worldObj == null || !this.entity.worldObj.isRemote) return;
+    public void chat(Object... args)
+    {
+        if (this.entity.world == null || !this.entity.world.isRemote) return;
         StringBuilder sbStr = new StringBuilder();
-        for (Object arg : args) {
+        EntityPlayer player = (EntityPlayer) this.entity;
+
+        for (Object arg : args)
+        {
             if (arg != args[0]) sbStr.append(" ");
             sbStr.append(arg);
         }
-        ((EntityPlayer) this.entity).addChatComponentMessage(new TextComponentString(sbStr.toString()));
+        player.sendMessage(new TextComponentString(sbStr.toString()));
     }
 
-    public void giveAchievement(String name) throws CommandException {
-        if (!name.contains(".")) {
-            name = "achievement." + name;
-        }
+    public void giveAchievement(String name) throws CommandException
+    {
+        if (!name.contains(".")) name = "achievement." + name;
         this.achiev("give", name);
     }
 
-    public void takeAchievement(String name) throws CommandException {
-        if (!name.contains(".")) {
-            name = "achievement." + name;
-        }
+    public void takeAchievement(String name) throws CommandException
+    {
+        if (!name.contains(".")) name = "achievement." + name;
         this.achiev("take", name);
     }
 
-    private void achiev(String... args) throws CommandException {
-        if (this.entity.worldObj == null || this.entity.worldObj.isRemote) return;
-        new CommandAchievement().execute(this.entity.worldObj.getMinecraftServer(), this.entity,
-               args);
+    private void achiev(String... args) throws CommandException
+    {
+        if (this.entity.world == null || this.entity.world.isRemote) return;
+        //new CommandAchievement().execute(this.entity.world.getMinecraftServer(), this.entity, args);
     }
 }

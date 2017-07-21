@@ -24,22 +24,38 @@
 package net.mechanicalcat.pycode.proxy;
 
 
-import net.mechanicalcat.pycode.events.PyCodeEventHandler;
-import net.minecraft.entity.player.EntityPlayer;
+import net.mechanicalcat.pycode.PythonEngine;
+import net.mechanicalcat.pycode.init.*;
+import net.mechanicalcat.pycode.net.ModNetwork;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-public class ServerProxy implements CommonProxy {
+public class ServerProxy
+{
+    public void preInit(FMLPreInitializationEvent e)
+    {
+        ModBlocks.register();
+        ModItems.register();
+        ModEntities.register();
+        ModCrafting.register();
+        ModNetwork.register();
+        ModCode.register();
+    }
 
-    @Override
-    public void preInit() {}
+    public void init(FMLInitializationEvent e)
+    {
+        PythonEngine.getEngine();
+    }
 
-    @Override
-    public void init() {}
+    public void postInit(FMLPostInitializationEvent e)
+    {
 
-    @Override
-    public void postInit() {}
+    }
 
-    @Override
-    public void openBook(EntityPlayer player, ItemStack book) {}
+    public void openBook(ItemStack stack)
+    {
+
+    }
 }

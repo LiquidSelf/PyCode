@@ -25,21 +25,29 @@ package net.mechanicalcat.pycode.items;
 
 import net.mechanicalcat.pycode.blocks.PythonBlock;
 import net.mechanicalcat.pycode.script.PythonCode;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 
-public class PythonBlockItem extends ItemBlock {
-    public PythonBlockItem(PythonBlock block) {super(block);}
+public class PythonBlockItem extends ItemBlock
+{
+    public PythonBlockItem(PythonBlock block)
+    {
+        super(block);
+    }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+    {
         NBTTagCompound compound = stack.getTagCompound();
         if (compound == null) return;
-        if (compound.hasKey(PythonCode.CODE_NBT_TAG)) tooltip.add("[has code]");
+        if (compound.hasKey(PythonCode.CODE_NBT_TAG)) tooltip.add(I18n.format("item.hand.tooltip.info"));
     }
 }

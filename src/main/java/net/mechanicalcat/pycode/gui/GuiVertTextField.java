@@ -25,26 +25,25 @@ package net.mechanicalcat.pycode.gui;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiPageButtonList;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.math.MathHelper;
 
-
-// Basically a GuiTextField but vertical (rotated 270 degrees) and no text shadow
-// I would just subclass it except all these goddamn private vars :-/
-public class GuiVertTextField extends Gui {
+public class GuiVertTextField extends Gui
+{
     private final int id;
     private final FontRenderer fontRendererInstance;
     public int xPosition;
     public int yPosition;
-    /** The width of this text field. */
     public int width;
     public int height;
-    /** Has the current text being edited on the textbox. */
     private String text = "";
     private String defaultText = "";
     private int maxStringLength = 32;
@@ -68,7 +67,8 @@ public class GuiVertTextField extends Gui {
     private GuiPageButtonList.GuiResponder guiResponder;
     private Predicate<String> validator = Predicates.<String>alwaysTrue();
 
-    public GuiVertTextField(int componentId, FontRenderer fontrendererObj, int x, int y, int width, int height) {
+    public GuiVertTextField(int componentId, FontRenderer fontrendererObj, int x, int y, int width, int height)
+    {
         this.id = componentId;
         this.fontRendererInstance = fontrendererObj;
         this.xPosition = x;
@@ -77,25 +77,16 @@ public class GuiVertTextField extends Gui {
         this.height = height;
     }
 
-    /**
-     * Sets the GuiResponder associated with this text box.
-     */
     public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponderIn)
     {
         this.guiResponder = guiResponderIn;
     }
 
-    /**
-     * Increments the cursor counter
-     */
     public void updateCursorCounter()
     {
         ++this.cursorCounter ;
     }
 
-    /**
-     * Sets the text of the textbox, and moves the cursor to the end.
-     */
     public void setText(String textIn)
     {
         if (this.validator.apply(textIn))
@@ -113,21 +104,16 @@ public class GuiVertTextField extends Gui {
         }
     }
 
-    public void setDefaultText(String text) {
+    public void setDefaultText(String text)
+    {
         this.defaultText = text;
     }
 
-    /**
-     * Returns the contents of the textbox
-     */
     public String getText()
     {
         return this.text;
     }
 
-    /**
-     * returns the text between the cursor and selectionEnd
-     */
     public String getSelectedText()
     {
         int i = this.cursorPosition < this.selectionEnd ? this.cursorPosition : this.selectionEnd;
@@ -140,9 +126,6 @@ public class GuiVertTextField extends Gui {
         this.validator = theValidator;
     }
 
-    /**
-     * Adds the given text after the cursor, or replaces the currently selected text if there is a selection.
-     */
     public void writeText(String textToWrite)
     {
         String s = "";
@@ -186,10 +169,6 @@ public class GuiVertTextField extends Gui {
         }
     }
 
-    /**
-     * Deletes the given number of words from the current cursor's position, unless there is currently a selection, in
-     * which case the selection is deleted instead.
-     */
     public void deleteWords(int num)
     {
         if (!this.text.isEmpty())
@@ -205,10 +184,6 @@ public class GuiVertTextField extends Gui {
         }
     }
 
-    /**
-     * Deletes the given number of characters from the current cursor's position, unless there is currently a selection,
-     * in which case the selection is deleted instead.
-     */
     public void deleteFromCursor(int num)
     {
         if (!this.text.isEmpty())
@@ -257,25 +232,16 @@ public class GuiVertTextField extends Gui {
         return this.id;
     }
 
-    /**
-     * Gets the starting index of the word at the specified number of words away from the cursor position.
-     */
     public int getNthWordFromCursor(int numWords)
     {
         return this.getNthWordFromPos(numWords, this.getCursorPosition());
     }
 
-    /**
-     * Gets the starting index of the word at a distance of the specified number of words away from the given position.
-     */
     public int getNthWordFromPos(int n, int pos)
     {
         return this.getNthWordFromPosWS(n, pos, true);
     }
 
-    /**
-     * Like getNthWordFromPos (which wraps this), but adds option for skipping consecutive spaces
-     */
     public int getNthWordFromPosWS(int n, int pos, boolean skipWs)
     {
         int i = pos;
@@ -318,44 +284,29 @@ public class GuiVertTextField extends Gui {
         return i;
     }
 
-    /**
-     * Moves the text cursor by a specified number of characters and clears the selection
-     */
     public void moveCursorBy(int num)
     {
         this.setCursorPosition(this.selectionEnd + num);
     }
 
-    /**
-     * Sets the current position of the cursor.
-     */
     public void setCursorPosition(int pos)
     {
         this.cursorPosition = pos;
         int i = this.text.length();
-        this.cursorPosition = MathHelper.clamp_int(this.cursorPosition, 0, i);
+        this.cursorPosition = MathHelper.clamp(this.cursorPosition, 0, i);
         this.setSelectionPos(this.cursorPosition);
     }
 
-    /**
-     * Moves the cursor to the very start of this text box.
-     */
     public void setCursorPositionZero()
     {
         this.setCursorPosition(0);
     }
 
-    /**
-     * Moves the cursor to the very end of this text box.
-     */
     public void setCursorPositionEnd()
     {
         this.setCursorPosition(this.text.length());
     }
 
-    /**
-     * Call this method from your GuiScreen to process the keys into the textbox
-     */
     public boolean textboxKeyTyped(char typedChar, int keyCode)
     {
         if (!this.isFocused)
@@ -519,42 +470,36 @@ public class GuiVertTextField extends Gui {
     /**
      * Called when mouse is clicked, regardless as to whether it is over this button or not.
      */
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        // width and height are transposed, yes!
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    {
         boolean flag = mouseX >= xPosition && mouseX < xPosition + height
                 && mouseY >= yPosition - width && mouseY < yPosition;
 
-        if (this.canLoseFocus) {
-            this.setFocused(flag);
-        }
+        if (this.canLoseFocus) this.setFocused(flag);
 
-        if (this.isFocused && flag && mouseButton == 0) {
-            if (this.text.equals(this.defaultText)) {
-                this.setText("");
-            }
+        if (this.isFocused && flag && mouseButton == 0)
+        {
+            if (this.text.equals(this.defaultText)) this.setText("");
 
             int i = this.yPosition - mouseY;
 
-            if (this.enableBackgroundDrawing) {
-                i -= 4;
-            }
+            if (this.enableBackgroundDrawing) i -= 4;
 
             String s = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
             this.setCursorPosition(this.fontRendererInstance.trimStringToWidth(s, i).length() + this.lineScrollOffset);
         }
     }
 
-    /**
-     * Draws the textbox
-     */
-    public void drawTextBox() {
+    public void drawTextBox()
+    {
         if (!this.getVisible()) return;
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(this.xPosition, this.yPosition, 0);
         GlStateManager.rotate(270, 0, 0, 1);
 
-        if (this.getEnableBackgroundDrawing()) {
+        if (this.getEnableBackgroundDrawing())
+        {
             drawRect(-1, -1, this.width + 1, this.height + 1, -6250336);
             drawRect(0, 0, this.width, this.height, -16777216);
         }
@@ -569,11 +514,10 @@ public class GuiVertTextField extends Gui {
         int i1 = this.enableBackgroundDrawing ? (this.height - 8) / 2 : 0;
         int j1 = l;
 
-        if (k > s.length()) {
-            k = s.length();
-        }
+        if (k > s.length()) k = s.length();
 
-        if (!s.isEmpty()) {
+        if (!s.isEmpty())
+        {
             String s1 = flag ? s.substring(0, j) : s;
             j1 = this.fontRendererInstance.drawString(s1, l, i1, i);
         }
@@ -581,26 +525,35 @@ public class GuiVertTextField extends Gui {
         boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
         int k1 = j1;
 
-        if (!flag) {
+        if (!flag)
+        {
             k1 = j > 0 ? l + this.width : l;
-        } else if (flag2) {
+        }
+        else if (flag2)
+        {
             k1 = j1 - 1;
             --j1;
         }
 
-        if (!s.isEmpty() && flag && j < s.length()) {
+        if (!s.isEmpty() && flag && j < s.length())
+        {
             j1 = this.fontRendererInstance.drawString(s.substring(j), j1, i1, i);
         }
 
-        if (flag1) {
-            if (flag2) {
+        if (flag1)
+        {
+            if (flag2)
+            {
                 Gui.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT, -3092272);
-            } else {
+            }
+            else
+            {
                 this.fontRendererInstance.drawString("_", k1, i1, i);
             }
         }
 
-        if (k != j) {
+        if (k != j)
+        {
             int l1 = l + this.fontRendererInstance.getStringWidth(s.substring(0, k));
             this.drawCursorVertical(k1, i1 - 1, l1 - 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT);
         }
@@ -608,9 +561,6 @@ public class GuiVertTextField extends Gui {
         GlStateManager.popMatrix();
     }
 
-    /**
-     * Draws the current selection and a vertical line cursor in the text box.
-     */
     private void drawCursorVertical(int startX, int startY, int endX, int endY)
     {
         if (startX < endX)
@@ -638,7 +588,7 @@ public class GuiVertTextField extends Gui {
         }
 
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
         GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.enableColorLogic();
@@ -653,10 +603,6 @@ public class GuiVertTextField extends Gui {
         GlStateManager.enableTexture2D();
     }
 
-    /**
-     * Sets the maximum length for the text in this text box. If the current text is longer than this length, the
-     * current text will be trimmed.
-     */
     public void setMaxStringLength(int length)
     {
         this.maxStringLength = length;
@@ -667,57 +613,36 @@ public class GuiVertTextField extends Gui {
         }
     }
 
-    /**
-     * returns the maximum number of character that can be contained in this textbox
-     */
     public int getMaxStringLength()
     {
         return this.maxStringLength;
     }
 
-    /**
-     * returns the current position of the cursor
-     */
     public int getCursorPosition()
     {
         return this.cursorPosition;
     }
 
-    /**
-     * Gets whether the background and outline of this text box should be drawn (true if so).
-     */
     public boolean getEnableBackgroundDrawing()
     {
         return this.enableBackgroundDrawing;
     }
 
-    /**
-     * Sets whether or not the background and outline of this text box should be drawn.
-     */
     public void setEnableBackgroundDrawing(boolean enableBackgroundDrawingIn)
     {
         this.enableBackgroundDrawing = enableBackgroundDrawingIn;
     }
 
-    /**
-     * Sets the color to use when drawing this text box's text. A different color is used if this text box is disabled.
-     */
     public void setTextColor(int color)
     {
         this.enabledColor = color;
     }
 
-    /**
-     * Sets the color to use for text in this text box when this text box is disabled.
-     */
     public void setDisabledTextColour(int color)
     {
         this.disabledColor = color;
     }
 
-    /**
-     * Sets focus to this gui element
-     */
     public void setFocused(boolean isFocusedIn)
     {
         if (isFocusedIn && !this.isFocused)
@@ -728,42 +653,26 @@ public class GuiVertTextField extends Gui {
         this.isFocused = isFocusedIn;
     }
 
-    /**
-     * Getter for the focused field
-     */
     public boolean isFocused()
     {
         return this.isFocused;
     }
 
-    /**
-     * Sets whether this text box is enabled. Disabled text boxes cannot be typed in.
-     */
     public void setEnabled(boolean enabled)
     {
         this.isEnabled = enabled;
     }
 
-    /**
-     * the side of the selection that is not the cursor, may be the same as the cursor
-     */
     public int getSelectionEnd()
     {
         return this.selectionEnd;
     }
 
-    /**
-     * returns the width of the textbox depending on if background drawing is enabled
-     */
     public int getWidth()
     {
         return this.getEnableBackgroundDrawing() ? this.width - 8 : this.width;
     }
 
-    /**
-     * Sets the position of the selection anchor (the selection anchor and the cursor position mark the edges of the
-     * selection). If the anchor is set beyond the bounds of the current text, it will be put back inside.
-     */
     public void setSelectionPos(int position)
     {
         int i = this.text.length();
@@ -805,32 +714,22 @@ public class GuiVertTextField extends Gui {
                 this.lineScrollOffset -= this.lineScrollOffset - position;
             }
 
-            this.lineScrollOffset = MathHelper.clamp_int(this.lineScrollOffset, 0, i);
+            this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
         }
     }
 
-    /**
-     * Sets whether this text box loses focus when something other than it is clicked.
-     */
     public void setCanLoseFocus(boolean canLoseFocusIn)
     {
         this.canLoseFocus = canLoseFocusIn;
     }
 
-    /**
-     * returns true if this textbox is visible
-     */
     public boolean getVisible()
     {
         return this.visible;
     }
 
-    /**
-     * Sets whether or not this textbox is visible
-     */
     public void setVisible(boolean isVisible)
     {
         this.visible = isVisible;
     }
-
 }

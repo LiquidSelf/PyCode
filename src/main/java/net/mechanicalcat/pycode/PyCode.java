@@ -23,64 +23,49 @@
 
 package net.mechanicalcat.pycode;
 
-import net.mechanicalcat.pycode.events.PyCodeEventHandler;
-import net.mechanicalcat.pycode.init.*;
-import net.mechanicalcat.pycode.net.ModNetwork;
-import net.mechanicalcat.pycode.proxy.CommonProxy;
-import net.mechanicalcat.pycode.tileentity.PyCodeBlockTileEntity;
-import net.minecraftforge.common.MinecraftForge;
+import net.mechanicalcat.pycode.init.ModItems;
+import net.mechanicalcat.pycode.proxy.ServerProxy;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod(modid = Reference.MODID, version = Reference.VERSION, name = Reference.MODNAME, acceptedMinecraftVersions = Reference.ACCEPTED_VERSIONS)
-public class PyCode {
+public class PyCode
+{
     @Mod.Instance
     public static PyCode instance;
 
     @SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS)
-    public static CommonProxy proxy;
+    public static ServerProxy proxy;
 
-//    PyCodeEventHandler events = new PyCodeEventHandler();
+    public static CreativeTabs PYTAB = new CreativeTabs("pytab") {
+        @Override
+        public ItemStack getTabIconItem()
+        {
+            return new ItemStack(ModItems.python_wand);
+        }
+    };
 
     @EventHandler
-    public void preinit(FMLPreInitializationEvent event) {
-        System.out.println(String.format("%s (%s) %s initialising",
-                Reference.MODNAME, Reference.MODID, Reference.VERSION));
-
-//        MinecraftForge.EVENT_BUS.register(events);
-
-        ModBlocks.init();
-        ModBlocks.register();
-
-        ModCode.init();
-
-        ModItems.init();
-        ModItems.register();
-
-        ModEntities.register();
-
-        ModCrafting.register();
-
-        ModNetwork.init();
-
-        proxy.preInit();
-
-        GameRegistry.registerTileEntity(PyCodeBlockTileEntity.class, Reference.MODID + "PyCodeBlockTileEntity");
+    public void preinit(FMLPreInitializationEvent e)
+    {
+        proxy.preInit(e);
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event) {
-        proxy.init();
-        PythonEngine.getEngine();
+    public void init(FMLInitializationEvent e)
+    {
+        proxy.init(e);
     }
 
     @EventHandler
-    public void postinit(FMLPostInitializationEvent event) {
-        proxy.postInit();
+    public void postinit(FMLPostInitializationEvent e)
+    {
+        proxy.postInit(e);
     }
 }

@@ -30,22 +30,24 @@ import org.python.core.PyObject;
 import java.util.HashMap;
 import java.util.HashSet;
 
-
-// helper to turn PyObject arg/kw lists into something useful
-public class ArgParser {
-
+public class ArgParser
+{
     private String funcname;
     private String[] fixedArgs;
     private HashSet<String> keywordArgs;
     private HashMap<String, PyObject> args;
 
-    ArgParser(String funcname, String[] fixedArgs, String[] keywordArgs) {
+    ArgParser(String funcname, String[] fixedArgs, String[] keywordArgs)
+    {
         this.funcname = funcname;
         this.fixedArgs = fixedArgs;
         this.keywordArgs = new HashSet<>();
-        for (String keyword : keywordArgs) {
+
+        for (String keyword : keywordArgs)
+        {
             this.keywordArgs.add(keyword);
         }
+
         this.args = new HashMap<>();
     }
     

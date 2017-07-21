@@ -31,12 +31,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 @SideOnly(Side.CLIENT)
-public class ModelHand extends ModelBase {
-    ModelRenderer hand;
+public class ModelHand extends ModelBase
+{
+    private ModelRenderer hand;
 
-    public ModelHand() {
+    public ModelHand()
+    {
         textureWidth = 64;
         textureHeight = 32;
+
         setTextureOffset("hand.Shape9", 0, 13);
         setTextureOffset("hand.Shape12", 0, 21);
         setTextureOffset("hand.Shape14", 28, 16);
@@ -54,7 +57,7 @@ public class ModelHand extends ModelBase {
         hand = new ModelRenderer(this, "hand");
         hand.setRotationPoint(0F, 0F, 0F);
         setRotation(hand, 0F, 0F, 0F);
-//        hand.mirror = true;
+
         hand.addBox("Shape9", 0F, 1F, -7F, 1, 2, 1);
         hand.addBox("Shape12", -1F, 1F, 1F, 3, 4, 7);
         hand.addBox("Shape14", -1F, -3F, 2F, 3, 4, 1);
@@ -70,11 +73,13 @@ public class ModelHand extends ModelBase {
         hand.addBox("Shape7", 0F, 6F, 1F, 1, 1, 4);
     }
 
-    public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+    public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
+    {
         hand.render(scale);
     }
 
-    private void setRotation(ModelRenderer model, float x, float y, float z) {
+    private void setRotation(ModelRenderer model, float x, float y, float z)
+    {
         model.rotateAngleX = x;
         model.rotateAngleY = y;
         model.rotateAngleZ = z;

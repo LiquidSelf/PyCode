@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "pycode:pythonwanditem",
+            "data": 0
+        },
+        {
+            "item": "minecraft:writable_book",
+            "data": 0
+        }
+    ],
+    "result": {
+        "item": "pycode:pythonbookitem"
+    }
+}

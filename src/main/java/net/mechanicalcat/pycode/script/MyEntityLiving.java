@@ -23,43 +23,45 @@
 
 package net.mechanicalcat.pycode.script;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
 
-public class MyEntityLiving extends MyEntity {
-    public MyEntityLiving(EntityLivingBase entity) {
+public class MyEntityLiving extends MyEntity
+{
+    public MyEntityLiving(EntityLivingBase entity)
+    {
         super(entity);
     }
 
-    public boolean isMob() {
+    public boolean isMob()
+    {
         return true;
     }
 
-    public void potion(String effect) {
-        // don't run potion effects on the client
-        if (this.entity.worldObj.isRemote) return;
+    public void potion(String effect)
+    {
+        if (this.entity.world.isRemote) return;
 
         Potion potion = Potion.REGISTRY.getObject(new ResourceLocation(effect));
 
-        if (potion == null) {
-            FMLLog.severe("Unknown potion name '%s'", effect);
+        if (potion == null)
+        {
+            FMLLog.log.error("Unknown potion name '%s'", effect);
             return;
         }
-
-        FMLLog.info("potion %s on entity %s", potion, this.entity);
 
         PotionEffect potioneffect = new PotionEffect(potion, 50, 1);
         EntityLivingBase entitylivingbase = (EntityLivingBase)this.entity;
 
-        if (potion.isInstant()) {
+        if (potion.isInstant())
+        {
             potion.affectEntity(null, null, entitylivingbase, potioneffect.getAmplifier(), 0.5D);
-        } else {
+        }
+        else
+        {
             entitylivingbase.addPotionEffect(potioneffect);
         }
     }

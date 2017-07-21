@@ -27,21 +27,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.server.CommandAchievement;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nullable;
 
 public class BaseMethods {
     protected World world;
@@ -57,7 +47,7 @@ public class BaseMethods {
 
         Block block = block_state.getBlock();
 
-        FMLLog.info("Putting %s at %s", block_state, pos);
+        FMLLog.log.info("Putting %s at %s", block_state, pos);
 
         // handle special cases
         if (block instanceof BlockDoor) {

@@ -32,37 +32,44 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 
-public class PythonEngine {
+public class PythonEngine
+{
     private static PythonEngine instance = null;
     private PyScriptEngine engine;
 
-    private PythonEngine() {
+    private PythonEngine()
+    {
         ScriptEngineManager manager = new ScriptEngineManager();
         engine = (PyScriptEngine) manager.getEngineByName("python");
-        if (engine == null) {
-            FMLLog.severe("FAILED to getBlock Python");
-        } else {
-            FMLLog.fine("Got Python");
-        }
-        try {
+
+        try
+        {
             engine.eval("print 'Python Ready'");
-        } catch (ScriptException e) {
-            FMLLog.severe("Python failed: %s", e);
+        }
+        catch (ScriptException e)
+        {
+            e.printStackTrace();
+            FMLLog.log.fatal("Python failed: %s", e);
         }
     }
 
-    public static PythonEngine getEngine() {
-        if (instance == null) {
+    public static PythonEngine getEngine()
+    {
+        if (instance == null)
+        {
             instance = new PythonEngine();
         }
+
         return instance;
     }
 
-    public static CompiledScript compile(String code) throws ScriptException {
+    public static CompiledScript compile(String code) throws ScriptException
+    {
         return getEngine().engine.compile(code);
     }
 
-    public static Object eval(String code, ScriptContext context) throws ScriptException {
+    public static Object eval(String code, ScriptContext context) throws ScriptException
+    {
         return getEngine().engine.eval(code, context);
     }
 }

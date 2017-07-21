@@ -35,7 +35,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 @Deprecated
-public enum EntityEnum {
+public enum EntityEnum
+{
     CREEPER("creeper", EntityCreeper.class),
     ZOMBIE("zombie", EntityZombie.class),
     SKELETON("skeleton",EntitySkeleton.class);
@@ -75,7 +76,7 @@ public enum EntityEnum {
             return null;
         }
         entity.setPosition(pos.getX(), pos.getY(), pos.getZ());
-        world.spawnEntityInWorld(entity);
+        world.spawnEntity(entity);
         return entity;
     }
 }

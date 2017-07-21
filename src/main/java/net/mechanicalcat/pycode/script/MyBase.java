@@ -23,9 +23,8 @@
 
 package net.mechanicalcat.pycode.script;
 
-// This is the base class of things that could be passed to the player's
-// code in an interaction event handler, like invoke(target) of the wand.
-public abstract class MyBase {
+public abstract class MyBase
+{
     public boolean isBlock() {
         return false;
     }

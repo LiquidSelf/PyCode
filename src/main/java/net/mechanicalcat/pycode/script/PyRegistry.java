@@ -27,15 +27,12 @@ import net.minecraft.block.*;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.CommandBlockData;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -48,53 +45,77 @@ import org.python.core.Py;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 
-public class PyRegistry {
+public class PyRegistry
+{
     @Nullable
-    public static MyBase myWrapper(World world, ICommandSender object) {
-        if (object instanceof EntityPlayer || object instanceof EntityPlayerMP) {
+    public static MyBase myWrapper(World world, ICommandSender object)
+    {
+        if (object instanceof EntityPlayer || object instanceof EntityPlayerMP)
+        {
             return new MyEntityPlayer((EntityPlayer)object);
-        } else if (object instanceof EntityLivingBase) {
+        }
+        else if (object instanceof EntityLivingBase)
+        {
             return new MyEntityLiving((EntityLivingBase) object);
-        } else if (object instanceof Entity) {
+        }
+        else if (object instanceof Entity)
+        {
             return new MyEntity((Entity) object);
-        } else if (object instanceof TileEntity) {
+        }
+        else if (object instanceof TileEntity)
+        {
             BlockPos bp = ((TileEntity) object).getPos();
             return new MyBlock(world.getBlockState(bp), bp);
         }
         return null;
     }
 
-    public static Block getBlock(String blockName) throws BlockTypeError {
+    public static Block getBlock(String blockName) throws BlockTypeError
+    {
         Block block = Block.REGISTRY.getObject(new ResourceLocation(blockName));
-        FMLLog.info("getBlock asked for '%s', got '%s'", blockName, block.getUnlocalizedName());
-        if (block.getUnlocalizedName().equals("tile.air") && !blockName.equals("air")) {
+
+        FMLLog.log.info("getBlock asked for '%s', got '%s'", blockName, block.getUnlocalizedName());
+
+        if (block.getUnlocalizedName().equals("tile.air") && !blockName.equals("air"))
+        {
             throw new BlockTypeError(blockName);
         }
+
         return block;
     }
 
     @Nullable
-    public static EnumFacing getBlockFacing(IBlockState state) {
+    public static EnumFacing getBlockFacing(IBlockState state)
+    {
         Block block = state.getBlock();
         PropertyDirection direction;
 
-        try {
+        try
+        {
             direction = (PropertyDirection)block.getClass().getField("FACING").get(state.getBlock());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
             return null;
         }
         return state.getValue(direction);
     }
 
-    public static String[] BLOCK_VARIATIONS = {"color", "facing", "type", "half", "shape", "seamless"};
-    public static IBlockState getBlockVariant(ArgParser spec, BlockPos pos, EnumFacing facing, WorldServer world) {
+    public static String[] BLOCK_VARIATIONS = { "color", "facing", "type", "half", "shape", "seamless" };
+    public static IBlockState getBlockVariant(ArgParser spec, BlockPos pos, EnumFacing facing, WorldServer world)
+    {
         String blockName = spec.getString("blockname");
         Block block;
-        try {
+
+        try
+        {
             block = PyRegistry.getBlock(blockName);
-        } catch (BlockTypeError e) {
+        }
+        catch (BlockTypeError e)
+        {
             throw Py.TypeError("Unknown block " + blockName);
         }
+
         IBlockState block_state = block.getDefaultState();
         EnumFacing opposite = facing.getOpposite();
         PropertyDirection direction;
@@ -102,87 +123,127 @@ public class PyRegistry {
         block_state = modifyBlockStateFromSpec(block_state, spec, facing);
 
         // if we haven't had an explicit facing set then try to determine a good one
-        if (!spec.has("facing")) {
-            try {
+        if (!spec.has("facing"))
+        {
+            try
+            {
                 direction = (PropertyDirection)block.getClass().getField("FACING").get(block);
-                if (world.isAirBlock(pos)) {
+                if (world.isAirBlock(pos))
+                {
                     // check whether the next pos along (pos -> farpos) is solid (attachable)
                     BlockPos farpos = pos.offset(facing);
-                    if (world.isSideSolid(farpos, opposite, true)) {
+
+                    if (world.isSideSolid(farpos, opposite, true))
+                    {
                         // attach in faced pos on farpos
                         block_state = block_state.withProperty(direction, opposite);
-                        FMLLog.fine("attach in pos=%s facing=%s", pos, opposite);
+                        FMLLog.log.info("attach in pos=%s facing=%s", pos, opposite);
                     }
                 }
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                FMLLog.fine("attach in current pos=%s no facing", pos);
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
+                FMLLog.log.error("attach in pos=%s facing=%s", pos, opposite);
             }
         }
 
         return block_state;
     }
 
-    public static IBlockState modifyBlockStateFromSpec(IBlockState block_state, ArgParser spec, EnumFacing facing) {
+    public static IBlockState modifyBlockStateFromSpec(IBlockState block_state, ArgParser spec, EnumFacing facing)
+    {
         Block block = block_state.getBlock();
         String blockName = block.getLocalizedName();
 
         if (spec.has("color")) {
             String color = spec.getString("color");
             EnumDyeColor dye = PythonCode.COLORMAP.get(color);
-            if (dye == null) {
+            if (dye == null)
+            {
                 throw Py.TypeError(blockName + " color " + color);
             }
+
             PropertyEnum<EnumDyeColor> prop;
-            try {
+
+            try
+            {
                 prop = (PropertyEnum<EnumDyeColor>) block.getClass().getField("COLOR").get(block);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw Py.TypeError(blockName + " cannot be colored");
             }
+
             block_state = block_state.withProperty(prop, dye);
         }
 
-        if (spec.has("facing")) {
+        if (spec.has("facing"))
+        {
             String s = spec.getString("facing");
             EnumFacing blockFacing;
-            if (s.equals("left")) {
+
+            if (s.equals("left"))
+            {
                 blockFacing = facing.rotateYCCW();
-            } else if (s.equals("right")) {
+            }
+            else if (s.equals("right"))
+            {
                 blockFacing = facing.rotateY();
-            } else if (s.equals("back")) {
+            }
+            else if (s.equals("back"))
+            {
                 blockFacing = facing.getOpposite();
-            } else {
+            }
+            else
+            {
                 blockFacing = PythonCode.FACINGMAP.get(s);
             }
-            if (blockFacing == null) {
+
+            if (blockFacing == null)
+            {
                 throw Py.TypeError("Invalid facing " + s);
             }
+
             PropertyDirection direction;
-            try {
+
+            try
+            {
                 direction = (PropertyDirection) block_state.getBlock().getClass().getField("FACING").get(block_state.getBlock());
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw Py.TypeError(blockName + " does not have facing");
             }
             block_state = block_state.withProperty(direction, blockFacing);
         }
 
         if (spec.has("type"))
-            if (block_state.getBlock() instanceof BlockPlanks) {
+        {
+            if (block_state.getBlock() instanceof BlockPlanks)
+            {
                 String s = spec.getString("type");
                 BlockPlanks.EnumType type = PyRegistry.PLANKTYPES.get(s);
                 if (s == null) throw Py.TypeError(blockName + " unknown type " + s);
                 block_state = block_state.withProperty(BlockPlanks.VARIANT, type);
-            } else if (block_state.getBlock() instanceof BlockStoneSlab) {
+            }
+            else if (block_state.getBlock() instanceof BlockStoneSlab)
+            {
                 String s = spec.getString("type");
                 BlockStoneSlab.EnumType type = PyRegistry.STONETYPES.get(s);
                 if (s == null) throw Py.TypeError(blockName + " unknown type " + s);
                 block_state = block_state.withProperty(BlockStoneSlab.VARIANT, type);
             }
+        }
 
-        if (spec.has("half")) {
-            if (block_state.getBlock() instanceof BlockStairs) {
+        if (spec.has("half"))
+        {
+            if (block_state.getBlock() instanceof BlockStairs)
+            {
                 String s = spec.getString("half");
                 BlockStairs.EnumHalf half;
-                switch (s) {
+
+                switch (s)
+                {
                     case "top":
                         half = BlockStairs.EnumHalf.TOP;
                         break;
@@ -192,11 +253,15 @@ public class PyRegistry {
                     default:
                         throw Py.TypeError(blockName + " unknown half " + s);
                 }
+
                 block_state = block_state.withProperty(BlockStairs.HALF, half);
-            } else if (block_state.getBlock() instanceof BlockSlab) {
+            }
+            else if (block_state.getBlock() instanceof BlockSlab)
+            {
                 String s = spec.getString("half");
                 BlockSlab.EnumBlockHalf half;
-                switch (s) {
+                switch (s)
+                {
                     case "top":
                         half = BlockSlab.EnumBlockHalf.TOP;
                         break;
@@ -206,18 +271,23 @@ public class PyRegistry {
                     default:
                         throw Py.TypeError(blockName + " unknown half " + s);
                 }
+
                 block_state = block_state.withProperty(BlockSlab.HALF, half);
             }
         }
 
-        if (spec.has("seamless") && block_state.getBlock() instanceof BlockStoneSlab) {
+        if (spec.has("seamless") && block_state.getBlock() instanceof BlockStoneSlab)
+        {
             block_state = block_state.withProperty(BlockStoneSlab.SEAMLESS, spec.getBoolean("seamless"));
         }
 
-        if (spec.has("shape") && block_state.getBlock() instanceof BlockStairs) {
+        if (spec.has("shape") && block_state.getBlock() instanceof BlockStairs)
+        {
             String s = spec.getString("shape");
             BlockStairs.EnumShape shape;
-            switch (s) {
+
+            switch (s)
+            {
                 case "straight":
                     shape = BlockStairs.EnumShape.STRAIGHT;
                     break;
@@ -236,16 +306,18 @@ public class PyRegistry {
                 default:
                     throw Py.TypeError(blockName + " unknown shape " + s);
             }
+
             block_state = block_state.withProperty(BlockStairs.SHAPE, shape);
         }
-
         return block_state;
     }
 
     public static HashMap<String, String> FILLER = new HashMap<>();
     public static HashMap<String, BlockPlanks.EnumType> PLANKTYPES = new HashMap<>();
     public static HashMap<String, BlockStoneSlab.EnumType> STONETYPES = new HashMap<>();
-    static {
+
+    static
+    {
         FILLER.put("oak", "planks");
         FILLER.put("stone", "stone");
         FILLER.put("brick", "brick_block");

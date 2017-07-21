@@ -31,10 +31,15 @@
 
 package net.mechanicalcat.pycode.script.jython;
 
+import org.python.core.Py;
+import org.python.core.PyCode;
+import org.python.core.PyObject;
+import org.python.core.PySystemState;
+
 import javax.script.*;
-import java.lang.reflect.*;
-import java.io.*;
-import org.python.core.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Proxy;
 
 
 public class JythonScriptEngine extends AbstractScriptEngine 
@@ -146,109 +151,109 @@ public class JythonScriptEngine extends AbstractScriptEngine
         return makeInterface(null, clazz);
     }
 
-    private <T> T makeInterface(Object obj, Class<T> clazz) {
-        if (clazz == null || !clazz.isInterface()) {
+    private <T> T makeInterface(Object obj, Class<T> clazz)
+    {
+        if (clazz == null || !clazz.isInterface())
+        {
             throw new IllegalArgumentException("interface Class expected");
         }
+
         final Object thiz = obj;
         return (T) Proxy.newProxyInstance(
               clazz.getClassLoader(),
               new Class[] { clazz },
-              new InvocationHandler() {
-                  public Object invoke(Object proxy, Method m, Object[] args)
-                                       throws Throwable {
-                      Object res = invokeImpl(
-                                       thiz, m.getName(), args);                      
-                      return py2java(java2py(res), m.getReturnType());
-                  }
-              });
+                (proxy, m, args) -> {
+                    Object res = invokeImpl(thiz, m.getName(), args);
+                    return py2java(java2py(res), m.getReturnType());
+                });
     }
 
-
     // ScriptEngine methods
-    public Object eval(String str, ScriptContext ctx) 
-                       throws ScriptException {	
+    public Object eval(String str, ScriptContext ctx) throws ScriptException
+    {
         PyCode code = compileScript(str, ctx);
         return evalCode(code, ctx);
     }
 
-    public Object eval(Reader reader, ScriptContext ctx)
-                       throws ScriptException { 
+    public Object eval(Reader reader, ScriptContext ctx) throws ScriptException
+    {
         return eval(readFully(reader), ctx);
     }
 
-    public ScriptEngineFactory getFactory() {
-	synchronized (this) {
-	    if (factory == null) {
-	    	factory = new JythonScriptEngineFactory();
-	    }
+    public ScriptEngineFactory getFactory()
+    {
+        synchronized (this)
+        {
+            if (factory == null) factory = new JythonScriptEngineFactory();
         }
-	return factory;
+        return factory;
     }
 
     public Bindings createBindings() {
         return new SimpleBindings();
     }
 
-    public void setContext(ScriptContext ctx) {
+    public void setContext(ScriptContext ctx)
+    {
         super.setContext(ctx);
-        // update myScope to keep it in-sync
         myScope = newScope(context);
     }
 
-    // package-private methods
-    void setFactory(ScriptEngineFactory factory) {
+    void setFactory(ScriptEngineFactory factory)
+    {
         this.factory = factory;
     }
 
-    static PyObject java2py(Object javaObj) {
+    static PyObject java2py(Object javaObj)
+    {
         return Py.java2py(javaObj);
     }
 
-    static Object py2java(PyObject pyObj, Class type) {        
+    static Object py2java(PyObject pyObj, Class type)
+    {
         return (pyObj == null)? null : pyObj.__tojava__(type);
     }
 
-    static Object py2java(PyObject pyObj) {
+    static Object py2java(PyObject pyObj)
+    {
         return py2java(pyObj, Object.class);
     }
 
     static PyObject[] wrapArguments(Object[] args) {
-        if (args == null) {
+
+        if (args == null)
+        {
             return new PyObject[0];
         }
 
         PyObject[] res = new PyObject[args.length];
-        for (int i = 0; i < args.length; i++) {
+
+        for (int i = 0; i < args.length; i++)
+        {
             res[i] = java2py(args[i]);
         }
+
         return res;
     }
 
-    // internals only below this point
-    private PyObject getJythonScope(ScriptContext ctx) {
-        if (ctx == context) {
+    private PyObject getJythonScope(ScriptContext ctx)
+    {
+        if (ctx == context)
+        {
             return myScope;
-        } else {
-            return newScope(ctx);
         }
+        return newScope(ctx);
     }
 
-    private PyObject newScope(ScriptContext ctx) {
+    private PyObject newScope(ScriptContext ctx)
+    {
         return new JythonScope(this, ctx); 
     }
 
-    private void setSystemState() {
-        /*
-         * From my reading of Jython source, it appears that
-         * PySystemState is set on per-thread basis. So, I 
-         * maintain it in a thread local and set it. Besides,
-         * this also helps in setting correct class loader
-         * -- which is thread context class loader.
-         */
-        if (systemState.get() == null) {
-            // we entering into this thread for the first time.
-           
+    private void setSystemState()
+    {
+        if (systemState.get() == null)
+        {
             PySystemState newState = new PySystemState();            
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             newState.setClassLoader(cl);
@@ -257,55 +262,58 @@ public class JythonScriptEngine extends AbstractScriptEngine
         }
     }
 
-    private PyCode compileScript(String script, ScriptContext ctx) 
-                                 throws ScriptException {
-        try {
+    private PyCode compileScript(String script, ScriptContext ctx) throws ScriptException
+    {
+        try
+        {
             setSystemState();
             String fileName = (String) ctx.getAttribute(ScriptEngine.FILENAME);
-            if (fileName == null) {
-                fileName = "<unknown>";
-            }
 
-            /*
-             * Jython parser seems to have 3 input modes (called compile "kind")
-             * These are "single", "eval" and "exec". I don't clearly understand
-             * the difference. But, with "eval" and "exec" certain features are
-             * not working. For eg. with "eval" assignments are not working. 
-             * I've used "exec". But, that is customizable by special attribute.
-             */
+            if (fileName == null) fileName = "<unknown>";
+
             String mode = (String) ctx.getAttribute(JYTHON_COMPILE_MODE);
-            if (mode == null) {
-                mode = "exec";
-            }
+
+            if (mode == null) mode = "exec";
+
             PyObject compile = systemState.get().builtins.__finditem__("compile");
             String[] args = {script, fileName, mode};
             return (PyCode) compile.__call__(wrapArguments(args));
-        } catch (Exception exp) {
+        }
+        catch (Exception exp)
+        {
             throw new ScriptException(exp);
         }
     }
 
-    private Object evalCode(PyCode code, ScriptContext ctx) 
-                            throws ScriptException {
-        try {
+    private Object evalCode(PyCode code, ScriptContext ctx) throws ScriptException
+    {
+        try
+        {
             setSystemState();
             PyObject scope = getJythonScope(ctx);
             PyObject res = Py.runCode(code, scope, scope);
             return res.__tojava__(Object.class);
-        } catch (Exception exp) {
+        }
+        catch (Exception exp)
+        {
             throw new ScriptException(exp);
         }
     }
 
-    private String readFully(Reader reader) throws ScriptException { 
+    private String readFully(Reader reader) throws ScriptException
+    {
         char[] arr = new char[8*1024]; // 8K at a time
         StringBuilder buf = new StringBuilder();
         int numChars;
-        try {
-            while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
+        try
+        {
+            while ((numChars = reader.read(arr, 0, arr.length)) > 0)
+            {
                 buf.append(arr, 0, numChars);
             }
-        } catch (IOException exp) {
+        }
+        catch (IOException exp)
+        {
             throw new ScriptException(exp);
         }
         return buf.toString();
