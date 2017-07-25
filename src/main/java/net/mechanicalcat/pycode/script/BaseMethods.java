@@ -23,6 +23,7 @@
 
 package net.mechanicalcat.pycode.script;
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockDoor;
@@ -47,7 +48,10 @@ public class BaseMethods {
 
         Block block = block_state.getBlock();
 
-        FMLLog.log.info("Putting %s at %s", block_state, pos);
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Putting %s at %s", block_state, pos);
+        }
 
         // handle special cases
         if (block instanceof BlockDoor) {

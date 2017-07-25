@@ -25,6 +25,7 @@ package net.mechanicalcat.pycode.items;
 
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -41,7 +42,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 
-public class PythonBookItem extends Item
+public final class PythonBookItem extends Item
 {
     public List<String> pages;
 
@@ -58,10 +59,15 @@ public class PythonBookItem extends Item
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer playerIn, EnumHand hand)
     {
         ItemStack stack = playerIn.getHeldItem(hand);
-        FMLLog.log.info("Book onItemRightClick stack=%s, hand=%s", stack, hand);
+
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Book onItemRightClick stack=%s, hand=%s", stack, hand);
+        }
+
         if (hand == EnumHand.OFF_HAND) return new ActionResult(EnumActionResult.FAIL, stack);
 
-        PyCode.proxy.openBook(stack);
+        PyCode.proxy.openBook(playerIn, stack);
         return new ActionResult(EnumActionResult.SUCCESS, stack);
     }
 
@@ -79,21 +85,4 @@ public class PythonBookItem extends Item
             if (!title.isEmpty()) tooltip.add(title);
         }
     }
-
-//    public static boolean isNBTValid(NBTTagCompound nbt) {
-//        if (nbt == null) {
-//            return false;
-//        } else if (!nbt.hasKey("pages", 9)) {
-//            return false;
-//        } else {
-//            NBTTagList nbttaglist = nbt.getTagList("pages", 8);
-//            for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-//                String s = nbttaglist.getStringTagAt(i);
-//                if (s.length() > 32767) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }
-//    }
 }

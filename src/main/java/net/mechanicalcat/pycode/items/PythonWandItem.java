@@ -25,8 +25,9 @@ package net.mechanicalcat.pycode.items;
 
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
-import net.mechanicalcat.pycode.net.InvokeWandMessage;
-import net.mechanicalcat.pycode.net.ModNetwork;
+import net.mechanicalcat.pycode.init.ModConfiguration;
+import net.mechanicalcat.pycode.network.InvokeWandMessage;
+import net.mechanicalcat.pycode.network.NetworkHandler;
 import net.mechanicalcat.pycode.script.MyBlock;
 import net.mechanicalcat.pycode.script.PyRegistry;
 import net.mechanicalcat.pycode.script.PythonCode;
@@ -51,7 +52,7 @@ import net.minecraftforge.fml.common.FMLLog;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PythonWandItem extends Item
+public final class PythonWandItem extends Item
 {
     public PythonWandItem()
     {
@@ -74,7 +75,7 @@ public class PythonWandItem extends Item
 
         if (offhand == ItemStack.EMPTY)
         {
-            FMLLog.log.info("... nothing in off hand so pass");
+            FMLLog.log.info("Off hand is empty!");
             return null;
         }
 
@@ -110,14 +111,23 @@ public class PythonWandItem extends Item
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (world == null || world.isRemote) return EnumActionResult.SUCCESS;
-        FMLLog.log.info("Wand onItemUse stack=%s, hand=%s", player.getHeldItem(hand), hand);
+
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Wand onItemUse stack=%s, hand=%s", player.getHeldItem(hand), hand);
+        }
+
         invokeOnBlock(player, pos);
         return EnumActionResult.SUCCESS;
     }
 
     public static void invokeOnEntity(EntityPlayer player, Entity entity)
     {
-        FMLLog.log.info("Wand invokeOnEntity%s, entity=%s", player, entity);
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Wand invokeOnEntity%s, entity=%s", player, entity);
+        }
+
         PythonCode code = getCodeFromBook(player);
         if (code == null) return;
         if (code.hasKey("invoke")) code.invoke("invoke", PyRegistry.myWrapper(player.world, entity));
@@ -136,9 +146,13 @@ public class PythonWandItem extends Item
     {
         if (playerIn.world.isRemote)
         {
-            FMLLog.log.info("Wand onItemRightClick stack=%s, hand=%s", playerIn.getHeldItem(handIn), handIn);
+            if (ModConfiguration.isDebug())
+            {
+                FMLLog.log.info("Wand onItemRightClick stack=%s, hand=%s", playerIn.getHeldItem(handIn), handIn);
+            }
+
             RayTraceResult target = Minecraft.getMinecraft().objectMouseOver;
-            ModNetwork.network.sendToServer(new InvokeWandMessage(target));
+            NetworkHandler.INSTANCE.sendToServer(new InvokeWandMessage(target));
         }
         return ActionResult.newResult(EnumActionResult.SUCCESS, playerIn.getHeldItem(handIn));
     }

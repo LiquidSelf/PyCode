@@ -24,6 +24,7 @@
 package net.mechanicalcat.pycode.entities;
 
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.mechanicalcat.pycode.init.ModItems;
 import net.mechanicalcat.pycode.items.PythonBookItem;
 import net.mechanicalcat.pycode.items.PythonWandItem;
@@ -138,12 +139,19 @@ public class HandEntity extends Entity implements IHasPythonCode
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
-        return this.handleItemInteraction(player, player.getHeldItem(hand));
+        if (!this.world.isRemote)
+        {
+            return this.handleItemInteraction(player, player.getHeldItem(hand));
+        }
+        return true;
     }
 
     public boolean handleItemInteraction(EntityPlayer player, ItemStack heldItem)
     {
-        FMLLog.log.info("Hand Entity handleItemInteraction item=%s", heldItem);
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Hand Entity handleItemInteraction item=%s", heldItem);
+        }
 
         if (heldItem == ItemStack.EMPTY)
         {
@@ -152,10 +160,8 @@ public class HandEntity extends Entity implements IHasPythonCode
                 this.code.put("hand", new HandMethods(this));
                 this.code.setRunner(player);
                 this.code.invoke("run", new MyEntityPlayer(player));
-                this.code.setRunner(this);
                 return true;
             }
-            return false;
         }
 
         Item item = heldItem.getItem();

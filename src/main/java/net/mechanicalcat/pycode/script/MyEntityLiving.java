@@ -23,6 +23,7 @@
 
 package net.mechanicalcat.pycode.script;
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -49,7 +50,10 @@ public class MyEntityLiving extends MyEntity
 
         if (potion == null)
         {
-            FMLLog.log.error("Unknown potion name '%s'", effect);
+            if (ModConfiguration.isDebug())
+            {
+                FMLLog.log.error("Unknown potion name '%s'", effect);
+            }
             return;
         }
 

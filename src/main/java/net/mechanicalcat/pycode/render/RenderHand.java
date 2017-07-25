@@ -50,8 +50,8 @@ public class RenderHand extends Render<HandEntity> {
         return handTexture;
     }
 
-    // shamelessly stolen and stripped from RenderMinecart
-    public void doRender(@Nonnull HandEntity entity, double x, double y, double z, float entityYaw, float partialTicks) {
+    public void doRender(@Nonnull HandEntity entity, double x, double y, double z, float entityYaw, float partialTicks)
+    {
         GlStateManager.pushMatrix();
         this.bindEntityTexture(entity);
         float f3 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;

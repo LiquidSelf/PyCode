@@ -23,6 +23,7 @@
 
 package net.mechanicalcat.pycode.script;
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.block.*;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
@@ -74,7 +75,10 @@ public class PyRegistry
     {
         Block block = Block.REGISTRY.getObject(new ResourceLocation(blockName));
 
-        FMLLog.log.info("getBlock asked for '%s', got '%s'", blockName, block.getUnlocalizedName());
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("getBlock asked for '%s', got '%s'", blockName, block.getUnlocalizedName());
+        }
 
         if (block.getUnlocalizedName().equals("tile.air") && !blockName.equals("air"))
         {
@@ -137,7 +141,11 @@ public class PyRegistry
                     {
                         // attach in faced pos on farpos
                         block_state = block_state.withProperty(direction, opposite);
-                        FMLLog.log.info("attach in pos=%s facing=%s", pos, opposite);
+
+                        if (ModConfiguration.isDebug())
+                        {
+                            FMLLog.log.info("attach in pos=%s facing=%s", pos, opposite);
+                        }
                     }
                 }
             }

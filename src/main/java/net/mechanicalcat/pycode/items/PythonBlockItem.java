@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 
-public class PythonBlockItem extends ItemBlock
+public final class PythonBlockItem extends ItemBlock
 {
     public PythonBlockItem(PythonBlock block)
     {

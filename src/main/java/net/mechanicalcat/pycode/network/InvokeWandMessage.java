@@ -21,9 +21,10 @@
  *
  */
 
-package net.mechanicalcat.pycode.net;
+package net.mechanicalcat.pycode.network;
 
 import io.netty.buffer.ByteBuf;
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.mechanicalcat.pycode.items.PythonWandItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,8 +38,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-
-public class InvokeWandMessage implements IMessage
+public final class InvokeWandMessage implements IMessage
 {
     private int entityId;
     private Vec3d hitVec;
@@ -62,11 +62,20 @@ public class InvokeWandMessage implements IMessage
             switch (message.typeOfHit)
             {
                 case BLOCK:
-                    FMLLog.log.info("Got a InvokeWandMessage block=%s", message.blockPos);
+                    if (ModConfiguration.isDebug())
+                    {
+                        FMLLog.log.info("Got a InvokeWandMessage block=%s", message.blockPos);
+                    }
+
                     PythonWandItem.invokeOnBlock(player, message.blockPos);
                 case ENTITY:
                     Entity entity = player.world.getEntityByID(message.entityId);
-                    FMLLog.log.info("Got a InvokeWandMessage entity=%s", entity);
+
+                    if (ModConfiguration.isDebug())
+                    {
+                        FMLLog.log.info("Got a InvokeWandMessage entity=%s", entity);
+                    }
+
                     if (entity == null) return;
                     PythonWandItem.invokeOnEntity(player, entity);
                     break;

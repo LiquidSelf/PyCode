@@ -46,7 +46,8 @@ public class Material
     }
 
     @Nullable
-    public static Material loadMaterial(String filename) {
+    public static Material loadMaterial(String filename)
+    {
         File f = new File(filename, "r");
         try {
             return loadMaterial(f);

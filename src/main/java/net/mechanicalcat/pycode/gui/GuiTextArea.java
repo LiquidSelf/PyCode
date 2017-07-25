@@ -23,6 +23,7 @@
 
 package net.mechanicalcat.pycode.gui;
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
@@ -111,7 +112,11 @@ public class GuiTextArea extends Gui
         {
             this.textYOffset += amount;
         }
-        FMLLog.log.info("text offset = %d, %d", textXOffset, textYOffset);
+
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("text offset = %d, %d", textXOffset, textYOffset);
+        }
     }
 
     public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponderIn)
@@ -423,7 +428,12 @@ public class GuiTextArea extends Gui
     {
         int modX = mouseX - xPosition;
         int modY = mouseY - yPosition;
-        FMLLog.log.info("MOUSE AT %d,%d", mouseX, mouseY);
+
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("MOUSE AT %d,%d", mouseX, mouseY);
+        }
+
         boolean inside = modX > 0 && modY > 0 && modX < width && modY < height;
 
         this.setFocused(inside);

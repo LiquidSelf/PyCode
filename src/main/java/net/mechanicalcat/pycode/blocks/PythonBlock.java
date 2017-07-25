@@ -25,6 +25,7 @@ package net.mechanicalcat.pycode.blocks;
 
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.mechanicalcat.pycode.script.MyEntityLiving;
 import net.mechanicalcat.pycode.script.MyEntityPlayer;
 import net.mechanicalcat.pycode.tileentity.PyCodeBlockTileEntity;
@@ -63,7 +64,10 @@ public final class PythonBlock extends Block implements ITileEntityProvider
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        FMLLog.log.info("onBlockActivated item=%s", playerIn.getHeldItem(hand));
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("onBlockActivated item=%s", playerIn.getHeldItem(hand));
+        }
         PyCodeBlockTileEntity code_block = this.getEntity(world, pos);
         return code_block == null || code_block.handleItemInteraction(playerIn, playerIn.getHeldItem(hand));
     }

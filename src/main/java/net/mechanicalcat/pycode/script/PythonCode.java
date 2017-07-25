@@ -24,6 +24,7 @@
 package net.mechanicalcat.pycode.script;
 
 import net.mechanicalcat.pycode.PythonEngine;
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
@@ -121,7 +122,11 @@ public class PythonCode
         ((WorldServer)world).spawnParticle(EnumParticleTypes.SPELL,
                 pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5,
                 20, 0, 0, 0, .5, new int[0]);
-        FMLLog.log.info(fmt, args);
+
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info(fmt, args);
+        }
     }
 
     // TODO refactor this to be more generic
@@ -349,7 +354,11 @@ public class PythonCode
     private void ensureCompiled()
     {
         if (!this.codeChanged) return;
-        FMLLog.log.info("Eval my code: %s", this.code);
+
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Eval my code: %s", this.code);
+        }
 
         // now execute the code
         try

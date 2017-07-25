@@ -23,6 +23,7 @@
 
 package net.mechanicalcat.pycode.tileentity;
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.mechanicalcat.pycode.items.PythonBookItem;
 import net.mechanicalcat.pycode.items.PythonWandItem;
 import net.mechanicalcat.pycode.script.*;
@@ -94,7 +95,11 @@ public class PyCodeBlockTileEntity extends TileEntity implements IHasPythonCode,
 
     public boolean handleItemInteraction(EntityPlayer player, ItemStack heldItem)
     {
-        FMLLog.log.info("Block Entity handleItemInteraction item=%s", heldItem);
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("Block Entity handleItemInteraction item=%s", heldItem);
+        }
+
         this.isPowered = this.world.isBlockPowered(this.getPosition());
 
         if (heldItem == ItemStack.EMPTY)

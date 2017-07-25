@@ -29,10 +29,14 @@ import net.mechanicalcat.pycode.init.ModBlocks;
 import net.mechanicalcat.pycode.init.ModEntities;
 import net.mechanicalcat.pycode.init.ModItems;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ClientProxy extends ServerProxy
 {
@@ -60,8 +64,19 @@ public class ClientProxy extends ServerProxy
     }
 
     @Override
-    public void openBook(ItemStack stack)
+    public EntityPlayer getEntityPlayer(MessageContext ctx)
     {
-        Minecraft.getMinecraft().displayGuiScreen(new GuiPythonBook(stack));
+        return ctx.side == Side.CLIENT ? Minecraft.getMinecraft().player : super.getEntityPlayer(ctx);
+    }
+
+    @Override
+    public void openBook(EntityPlayer player, ItemStack stack)
+    {
+        Item item = stack.getItem();
+
+        if (item == ModItems.python_book)
+        {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiPythonBook(player, stack));
+        }
     }
 }

@@ -23,6 +23,7 @@
 
 package net.mechanicalcat.pycode.script;
 
+import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLLog;
@@ -62,7 +63,11 @@ public class MyEntity extends MyBase
 
     public void ignite(int seconds)
     {
-        FMLLog.log.info("FIRE??? %s", this.entity);
+        if (ModConfiguration.isDebug())
+        {
+            FMLLog.log.info("FIRE??? %s", this.entity);
+        }
+
         this.entity.setFire(4);
     }
 

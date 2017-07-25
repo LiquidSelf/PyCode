@@ -23,7 +23,7 @@
 
 package net.mechanicalcat.pycode;
 
-public class Reference
+public final class Reference
 {
     public static final String MODID = "pycode";
     public static final String MODNAME = "Python Code";

@@ -23,18 +23,18 @@
 
 package net.mechanicalcat.pycode.gui;
 
-import io.netty.buffer.Unpooled;
+import net.mechanicalcat.pycode.network.NetworkHandler;
+import net.mechanicalcat.pycode.network.SPacketUpdateNBT;
 import net.mechanicalcat.pycode.script.PythonCode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.event.ClickEvent;
@@ -81,7 +81,7 @@ public class GuiPythonBook extends GuiScreen
     private int xPosition;
     private int yPosition;
 
-//    private final EntityPlayer editingPlayer;
+    private final EntityPlayer editingPlayer;
     private final ItemStack bookObj;
     private NBTTagList bookPages;
     private String bookTitle;
@@ -110,21 +110,24 @@ public class GuiPythonBook extends GuiScreen
     private String oldContent;
     private boolean codeChecked;
 
-    public GuiPythonBook(ItemStack book)
+    public GuiPythonBook(EntityPlayer player, ItemStack book)
     {
+        this.editingPlayer = player;
         this.bookObj = book;
         this.bookIsModified = false;
 
         if (book.hasTagCompound())
         {
             NBTTagCompound nbttagcompound = book.getTagCompound();
-            this.bookPages = nbttagcompound.getTagList("pages", 8);
+            this.bookPages = nbttagcompound.getTagList("pages", 8).copy();
             this.bookTitle = nbttagcompound.getString("title");
 
-            this.bookPages = this.bookPages.copy();
             this.bookTotalPages = this.bookPages.tagCount();
 
-            if (this.bookTotalPages < 1) this.bookTotalPages = 1;
+            if (this.bookTotalPages < 1)
+            {
+                this.bookTotalPages = 1;
+            }
         }
         else
         {
@@ -210,6 +213,7 @@ public class GuiPythonBook extends GuiScreen
         }
     }
 
+    @Override
     public void updateScreen()
     {
         super.updateScreen();
@@ -262,7 +266,9 @@ public class GuiPythonBook extends GuiScreen
         this.buttonCancel.visible = true;
     }
 
-    public void onGuiClosed() {
+    @Override
+    public void onGuiClosed()
+    {
         Keyboard.enableRepeatEvents(false);
     }
 
@@ -311,31 +317,45 @@ public class GuiPythonBook extends GuiScreen
             {
                 this.pageEdit.setString(this.pageGetCurrent());
             }
+
             this.updateButtons();
         }
     }
 
     private void sendBookToServer() throws IOException
     {
-        if (!this.bookIsModified || this.bookPages == null) return;
-
-        while (this.bookPages.tagCount() > 1)
+        if (this.bookIsModified && this.bookPages != null)
         {
-            String s = this.bookPages.getStringTagAt(this.bookPages.tagCount() - 1);
-            if (!s.trim().isEmpty()) break;
-            this.bookPages.removeTag(this.bookPages.tagCount() - 1);
+            while (this.bookPages.tagCount() > 1)
+            {
+                String s = this.bookPages.getStringTagAt(this.bookPages.tagCount() - 1);
+
+                if (!s.isEmpty())
+                {
+                    break;
+                }
+
+                this.bookPages.removeTag(this.bookPages.tagCount() - 1);
+            }
+
+            if (this.bookObj.hasTagCompound())
+            {
+                NBTTagCompound nbttagcompound = this.bookObj.getTagCompound();
+                nbttagcompound.setTag("pages", this.bookPages);
+            }
+            else
+            {
+                this.bookObj.setTagInfo("pages", this.bookPages);
+            }
+
+            String title = this.bookTitle;
+
+            if (title.equals(TITLE_PLACEHOLDER)) title = "";
+
+            this.bookObj.setTagInfo("title", new NBTTagString(title));
+
+            NetworkHandler.NETWORK.sendToServer(new SPacketUpdateNBT(this.bookObj));
         }
-
-        this.bookObj.setTagInfo("pages", this.bookPages);
-        String title = this.bookTitle;
-
-        if (title.equals(TITLE_PLACEHOLDER)) title = "";
-
-        this.bookObj.setTagInfo("title", new NBTTagString(title));
-
-        PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
-        packetbuffer.writeItemStack(this.bookObj);
-        this.mc.getConnection().sendPacket(new CPacketCustomPayload("MC|BEdit", packetbuffer));
     }
 
     @Override

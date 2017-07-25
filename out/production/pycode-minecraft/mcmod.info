@@ -1,0 +1,16 @@
+[
+{
+  "modid": "pycode",
+  "name": "Python Code",
+  "description": "Python code in Minecraft.",
+  "version": "${version}",
+  "mcversion": "1.12",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Richard Jones <richard@mechanicalcat.net>", "Ivasik rewrote under 1.12"],
+  "credits": "The jython team, MrCrayfish for his tutorials and the Forge team for Forge!",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
