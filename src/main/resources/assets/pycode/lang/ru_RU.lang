@@ -1,6 +1,8 @@
 itemGroup.pytab=PyCode
 
 gui.python_book.title=Нажмите, чтобы изменить название книги
+gui.python_book.page=Страница
+gui.python_book.page.at=из
 
 item.hand.tooltip.info=[Есть код]
 

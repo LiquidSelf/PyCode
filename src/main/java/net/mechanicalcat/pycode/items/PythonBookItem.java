@@ -25,7 +25,10 @@ package net.mechanicalcat.pycode.items;
 
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
+import net.mechanicalcat.pycode.entities.HandEntity;
 import net.mechanicalcat.pycode.init.ModConfiguration;
+import net.mechanicalcat.pycode.init.ModItems;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -62,13 +65,48 @@ public final class PythonBookItem extends Item
 
         if (ModConfiguration.isDebug())
         {
-            FMLLog.log.info("Book onItemRightClick stack=%s, hand=%s", stack, hand);
+            String info = String.format("Book onItemRightClick stack=%s, hand=%s", stack, hand);
+            FMLLog.log.info(info);
         }
 
         if (hand == EnumHand.OFF_HAND) return new ActionResult(EnumActionResult.FAIL, stack);
 
-        PyCode.proxy.openBook(playerIn, stack);
+        if (world.isRemote)
+        {
+            playerIn.openGui(PyCode.instance, 0, playerIn.world, 0, 0, 0);
+        }
         return new ActionResult(EnumActionResult.SUCCESS, stack);
+    }
+
+    public boolean itemInteract(ItemStack stack, HandEntity handEntity)
+    {
+        if (handEntity instanceof HandEntity)
+        {
+            if (stack.getItem() == ModItems.python_book)
+            {
+                NBTTagCompound tagCompound = stack.getTagCompound();
+
+                if (tagCompound == null) return false;
+
+                if (tagCompound.hasKey("title"))
+                {
+                    if (tagCompound.getString("title").isEmpty())
+                    {
+                        handEntity.setCustomNameTag(I18n.format("item.hand.tooltip.info"));
+                    }
+                    else
+                    {
+                        handEntity.setCustomNameTag(tagCompound.getString("title"));
+                    }
+                }
+            }
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     @Override

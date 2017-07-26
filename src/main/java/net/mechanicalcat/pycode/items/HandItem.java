@@ -71,6 +71,7 @@ public final class HandItem extends Item
             float yaw = player.getHorizontalFacing().getHorizontalAngle();
             NBTTagCompound compound = stack.getTagCompound();
             HandEntity entity = new HandEntity(world, compound, pos.getX() + .5, pos.getY() + 1.0, pos.getZ() + .5, yaw);
+            entity.setCustomNameTag(stack.getDisplayName());
             world.spawnEntity(entity);
             stack.shrink(1);
             return EnumActionResult.SUCCESS;

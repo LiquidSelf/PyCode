@@ -24,14 +24,15 @@
 package net.mechanicalcat.pycode.proxy;
 
 
+import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.PythonEngine;
 import net.mechanicalcat.pycode.init.*;
 import net.mechanicalcat.pycode.network.NetworkHandler;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class ServerProxy
@@ -40,11 +41,11 @@ public class ServerProxy
     {
         NetworkHandler.INSTANCE.register();
         new ModConfiguration(e.getSuggestedConfigurationFile());
+        NetworkRegistry.INSTANCE.registerGuiHandler(PyCode.instance, new GuiHandler());
 
         ModBlocks.register();
         ModItems.register();
         ModEntities.register();
-        ModCrafting.register();
         ModCode.register();
     }
 
@@ -55,16 +56,11 @@ public class ServerProxy
 
     public void postInit(FMLPostInitializationEvent e)
     {
-
+        ModCrafting.register();
     }
 
     public EntityPlayer getEntityPlayer(MessageContext ctx)
     {
         return ctx.getServerHandler().player;
-    }
-
-    public void openBook(EntityPlayer player, ItemStack stack)
-    {
-
     }
 }

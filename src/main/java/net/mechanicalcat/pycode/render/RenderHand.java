@@ -34,7 +34,8 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class RenderHand extends Render<HandEntity> {
+public class RenderHand extends Render<HandEntity>
+{
     private static ResourceLocation handTexture;
     private static ModelBase model = new ModelHand();
 
@@ -60,7 +61,8 @@ public class RenderHand extends Render<HandEntity> {
         GlStateManager.rotate(180.0F - entityYaw, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-f3, 0.0F, 0.0F, 1.0F);
 
-        if (this.renderOutlines) {
+        if (this.renderOutlines)
+        {
             GlStateManager.enableColorMaterial();
             GlStateManager.enableOutlineMode(this.getTeamColor(entity));
         }
@@ -69,10 +71,13 @@ public class RenderHand extends Render<HandEntity> {
         model.render(entity, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
         GlStateManager.popMatrix();
 
-        if (this.renderOutlines) {
+        if (this.renderOutlines)
+        {
             GlStateManager.disableOutlineMode();
             GlStateManager.disableColorMaterial();
-        } else {
+        }
+        else
+        {
             this.renderName(entity, x, y, z);
         }
 

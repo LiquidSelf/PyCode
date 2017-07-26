@@ -19,7 +19,7 @@ public final class NetworkHandler
     public void register()
     {
         registerMessage(SPacketUpdateNBT.class, Side.SERVER);
-        NETWORK.registerMessage(InvokeWandMessage.Handler.class, InvokeWandMessage.class, dec++, Side.SERVER);
+        registerMessage(SPacketInvokeWand.class, Side.SERVER);
     }
 
     public void sendToServer(final IMessage message)

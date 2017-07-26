@@ -26,8 +26,8 @@ package net.mechanicalcat.pycode.items;
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
 import net.mechanicalcat.pycode.init.ModConfiguration;
-import net.mechanicalcat.pycode.network.InvokeWandMessage;
 import net.mechanicalcat.pycode.network.NetworkHandler;
+import net.mechanicalcat.pycode.network.SPacketInvokeWand;
 import net.mechanicalcat.pycode.script.MyBlock;
 import net.mechanicalcat.pycode.script.PyRegistry;
 import net.mechanicalcat.pycode.script.PythonCode;
@@ -114,7 +114,8 @@ public final class PythonWandItem extends Item
 
         if (ModConfiguration.isDebug())
         {
-            FMLLog.log.info("Wand onItemUse stack=%s, hand=%s", player.getHeldItem(hand), hand);
+            String info = String.format("Wand onItemUse stack=%s, hand=%s", player.getHeldItem(hand), hand);
+            FMLLog.log.info(info);
         }
 
         invokeOnBlock(player, pos);
@@ -125,7 +126,8 @@ public final class PythonWandItem extends Item
     {
         if (ModConfiguration.isDebug())
         {
-            FMLLog.log.info("Wand invokeOnEntity%s, entity=%s", player, entity);
+            String info = String.format("Wand invokeOnEntity%s, entity=%s", player, entity);
+            FMLLog.log.info(info);
         }
 
         PythonCode code = getCodeFromBook(player);
@@ -148,11 +150,12 @@ public final class PythonWandItem extends Item
         {
             if (ModConfiguration.isDebug())
             {
-                FMLLog.log.info("Wand onItemRightClick stack=%s, hand=%s", playerIn.getHeldItem(handIn), handIn);
+                String info = String.format("Wand onItemRightClick stack=%s, hand=%s", playerIn.getHeldItem(handIn), handIn);
+                FMLLog.log.info(info);
             }
 
             RayTraceResult target = Minecraft.getMinecraft().objectMouseOver;
-            NetworkHandler.INSTANCE.sendToServer(new InvokeWandMessage(target));
+            NetworkHandler.INSTANCE.sendToServer(new SPacketInvokeWand(target));
         }
         return ActionResult.newResult(EnumActionResult.SUCCESS, playerIn.getHeldItem(handIn));
     }

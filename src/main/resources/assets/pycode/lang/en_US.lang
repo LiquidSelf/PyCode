@@ -1,6 +1,8 @@
 itemGroup.pytab=PyCode
 
 gui.python_book.title=Click to edit book title
+gui.python_book.page=Page
+gui.python_book.page.at=at
 
 item.hand.tooltip.info=[Has code]
 

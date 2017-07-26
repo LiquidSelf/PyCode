@@ -23,7 +23,8 @@
 
 package net.mechanicalcat.pycode.events;
 
-public class PyCodeEventHandler {
+public class PyCodeEventHandler
+{
 //    @SubscribeEvent
 //    public void onHandClick(PlayerInteractEvent.EntityInteractSpecific e){
 //        if (e.getWorld().isRemote) return;

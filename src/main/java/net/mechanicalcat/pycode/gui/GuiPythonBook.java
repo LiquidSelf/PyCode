@@ -380,11 +380,11 @@ public class GuiPythonBook extends GuiScreen
 
         // render the page location
         // TODO consider using GuiLabel
-        this.drawCenteredString(this.fontRenderer, "Page",
+        this.drawCenteredString(this.fontRenderer, I18n.format("gui.python_book.page"),
                 xPosition + LOC_PX_LEFT + LOC_PX_WIDTH / 2,
                 yPosition + LOC_PX_TOP, 0);
 
-        String page_pos = String.format("%d of %d", this.currPage + 1, this.bookTotalPages);
+        String page_pos = String.format("%d " + I18n.format("gui.python_book.page.at") + " %d", this.currPage + 1, this.bookTotalPages);
         this.drawCenteredString(this.fontRenderer, page_pos,
                 xPosition + LOC_PX_LEFT + LOC_PX_WIDTH / 2,
                 yPosition + LOC_PX_TOP + this.fontRenderer.FONT_HEIGHT, 0);
@@ -400,6 +400,7 @@ public class GuiPythonBook extends GuiScreen
             {
                 Pattern p = Pattern.compile("^(\\p{Alpha}+: )(.+) in <script> at");
                 Matcher m = p.matcher(err);
+
                 if (m.find())
                 {
                     err = m.group(2);

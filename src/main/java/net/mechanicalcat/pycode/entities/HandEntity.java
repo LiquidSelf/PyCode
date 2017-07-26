@@ -46,8 +46,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLLog;
 
@@ -56,7 +54,6 @@ import javax.annotation.Nullable;
 public class HandEntity extends Entity implements IHasPythonCode
 {
     private static final DataParameter<String> CODE = EntityDataManager.createKey(HandEntity.class, DataSerializers.STRING);
-
     private static net.minecraftforge.common.IMinecartCollisionHandler collisionHandler = null;
     public PythonCode code;
 
@@ -125,12 +122,6 @@ public class HandEntity extends Entity implements IHasPythonCode
         return this.code.hasCode();
     }
 
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        return new TextComponentString("[has code]");
-    }
-
     public BlockPos getFacedPos()
     {
         return getPosition().offset(getHorizontalFacing());
@@ -139,11 +130,7 @@ public class HandEntity extends Entity implements IHasPythonCode
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
-        if (!this.world.isRemote)
-        {
-            return this.handleItemInteraction(player, player.getHeldItem(hand));
-        }
-        return true;
+        return this.handleItemInteraction(player, player.getHeldItem(hand));
     }
 
     public boolean handleItemInteraction(EntityPlayer player, ItemStack heldItem)
@@ -175,6 +162,8 @@ public class HandEntity extends Entity implements IHasPythonCode
             BlockPos pos = this.getPosition();
             this.code.put("hand", new HandMethods(this));
             this.code.setCodeFromBook(this.getEntityWorld(), player, this, pos, heldItem);
+            PythonBookItem bookItem = (PythonBookItem) item;
+            bookItem.itemInteract(heldItem, this);
             return true;
         }
         return false;
@@ -251,17 +240,9 @@ public class HandEntity extends Entity implements IHasPythonCode
 
     public void onUpdate()
     {
-//        this.worldObj.theProfiler.startSection("entityBaseTick");
         if (this.posY < -64.0D)
         {
             this.onKillCommand();
         }
-
-//        this.setPosition(this.posX, this.posY, this.posZ);
-//        this.setRotation(this.rotationYaw, this.rotationPitch);
-
-//        this.doBlockCollisions();
-//        this.handleWaterMovement();
-//        this.worldObj.theProfiler.endSection();
     }
 }

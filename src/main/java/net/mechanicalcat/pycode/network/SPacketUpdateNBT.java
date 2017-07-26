@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemWritableBook;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
@@ -23,10 +24,7 @@ public final class SPacketUpdateNBT extends AbstractPacket<SPacketUpdateNBT>
     }
 
     @Override
-    public void handleClientSide(EntityPlayer player)
-    {
-
-    }
+    public void handleClientSide(EntityPlayer player) {}
 
     @Override
     public void handleServerSide(EntityPlayerMP player)
@@ -47,12 +45,13 @@ public final class SPacketUpdateNBT extends AbstractPacket<SPacketUpdateNBT>
 
             if (itemstack.getItem() == ModItems.python_book && itemstack.getItem() == itemstack1.getItem())
             {
+                itemstack1.setTagInfo("title", new NBTTagString(itemstack.getTagCompound().getString("title")));
                 itemstack1.setTagInfo("pages", itemstack.getTagCompound().getTagList("pages", 8));
             }
         }
-        catch (Exception exception6)
+        catch (Exception e)
         {
-            exception6.printStackTrace();
+            e.printStackTrace();
         }
     }
 

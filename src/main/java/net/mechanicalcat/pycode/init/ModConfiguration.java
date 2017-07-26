@@ -11,7 +11,9 @@ public class ModConfiguration
     public ModConfiguration(File config)
     {
         Configuration configuration = new Configuration(config);
+        configuration.load();
         this.debug = configuration.getBoolean("debug", "general", false, "For debug PyCode Mode");
+        configuration.save();
     }
 
     public static boolean isDebug()

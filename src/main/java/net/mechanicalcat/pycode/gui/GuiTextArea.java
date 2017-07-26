@@ -245,6 +245,10 @@ public class GuiTextArea extends Gui
 
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
+        int line_width;
+        int last_line = this.lines.length - 1;
+        String line;
+
         if (!this.isFocused) return;
 
         if (GuiScreen.isKeyComboCtrlC(keyCode))
@@ -252,140 +256,134 @@ public class GuiTextArea extends Gui
             GuiScreen.setClipboardString(this.getString());
             return;
         }
-
-        if (GuiScreen.isKeyComboCtrlV(keyCode))
+        else if (GuiScreen.isKeyComboCtrlV(keyCode))
         {
             this._editString(GuiScreen.getClipboardString());
             this.setCursorPosition(0, 0);
             return;
         }
-
-        //GuiScreen.isShiftKeyDown();
-        //GuiScreen.isCtrlKeyDown();
-
-        int line_width;
-        int last_line = this.lines.length - 1;
-        String line;
-
-        switch (keyCode)
+        else
         {
-            case Keyboard.KEY_BACK:
-                line = this.lines[this.cursorRow];
-                if (this.cursorColumn == 0)
-                {
-                    if (this.cursorRow == 0) return;
-                    String s = this.lines[this.cursorRow - 1];
-
-                    this.lines[this.cursorRow - 1] = s.substring(0, s.length()) + this.lines[this.cursorRow];
-                    this.cursorColumn = s.length();
-
-                    List<String> temp = new LinkedList<>();
-
-                    for (int i = 0; i < this.lines.length; i++)
+            switch (keyCode)
+            {
+                case Keyboard.KEY_BACK:
+                    line = this.lines[this.cursorRow];
+                    if (this.cursorColumn == 0)
                     {
-                        if (i != this.cursorRow) temp.add(this.lines[i]);
-                    }
-                    this._editString(String.join("\n", temp));
-                    this.cursorRow--;
-                }
-                else
-                {
-                    String newline = line.substring(0, this.cursorColumn - 1) + line.substring(this.cursorColumn, line.length());
-                    this.lines[this.cursorRow] = newline;
-                    this._editString(String.join("\n", this.lines));
-                    this.cursorColumn -= 1;
-                }
-                return;
-            case Keyboard.KEY_DELETE:
-                line = this.lines[this.cursorRow];
-                if (this.cursorColumn == this.lines[this.cursorRow].length())
-                {
-                    if (this.cursorRow == this.lines.length - 1) return;
-                    String s = this.lines[this.cursorRow + 1];
+                        if (this.cursorRow == 0) return;
+                        String s = this.lines[this.cursorRow - 1];
 
-                    this.lines[this.cursorRow] = line.substring(0, line.length()) + this.lines[this.cursorRow + 1];
+                        this.lines[this.cursorRow - 1] = s.substring(0, s.length()) + this.lines[this.cursorRow];
+                        this.cursorColumn = s.length();
 
-                    List<String> temp = new LinkedList<>();
-                    for (int i = 0; i < this.lines.length; i++)
-                    {
-                        if (i != this.cursorRow + 1) temp.add(this.lines[i]);
-                    }
-                    this._editString(String.join("\n", temp));
-                }
-                else
-                {
-                    String newline = line.substring(0, this.cursorColumn) + line.substring(this.cursorColumn + 1, line.length());
-                    this.lines[this.cursorRow] = newline;
-                    this._editString(String.join("\n", this.lines));
-                }
-                return;
-            case Keyboard.KEY_RETURN:
-            case Keyboard.KEY_NUMPADENTER:
-                if (this.cursorRow < this.maxRows)
-                {
-                    this.insertIntoCurrent("\n");
-                    this.cursorColumn = 0;
-                    this.cursorRow += 1;
-                }
-                return;
-            case Keyboard.KEY_LEFT:
-                this.cursorColumn--;
-                if (this.cursorColumn < 0)
-                {
-                    if (this.cursorRow > 0)
-                    {
+                        List<String> temp = new LinkedList<>();
+
+                        for (int i = 0; i < this.lines.length; i++)
+                        {
+                            if (i != this.cursorRow) temp.add(this.lines[i]);
+                        }
+                        this._editString(String.join("\n", temp));
                         this.cursorRow--;
-                        this.cursorColumn = this.lines[this.cursorRow].length();
                     }
                     else
                     {
-                        this.cursorColumn = 0;
+                        String newline = line.substring(0, this.cursorColumn - 1) + line.substring(this.cursorColumn, line.length());
+                        this.lines[this.cursorRow] = newline;
+                        this._editString(String.join("\n", this.lines));
+                        this.cursorColumn -= 1;
                     }
-                }
-                return;
-            case Keyboard.KEY_RIGHT:
-                line_width = this.lines[this.cursorRow].length();
-                this.cursorColumn++;
-
-                if (this.cursorRow < last_line)
-                {
-                    if (this.cursorColumn > line_width)
+                    return;
+                case Keyboard.KEY_DELETE:
+                    line = this.lines[this.cursorRow];
+                    if (this.cursorColumn == this.lines[this.cursorRow].length())
                     {
-                        this.cursorColumn = 0;
-                        this.moveCursorToRow(this.cursorRow + 1);
+                        if (this.cursorRow == this.lines.length - 1) return;
+                        String s = this.lines[this.cursorRow + 1];
+
+                        this.lines[this.cursorRow] = line.substring(0, line.length()) + this.lines[this.cursorRow + 1];
+
+                        List<String> temp = new LinkedList<>();
+                        for (int i = 0; i < this.lines.length; i++)
+                        {
+                            if (i != this.cursorRow + 1) temp.add(this.lines[i]);
+                        }
+                        this._editString(String.join("\n", temp));
                     }
-                }
-                else
-                {
-                    if (this.cursorColumn > line_width) this.cursorColumn = line_width;
-                }
-                return;
-            case Keyboard.KEY_UP:
-                this.moveCursorToRow(this.cursorRow - 1);
-                return;
-            case Keyboard.KEY_DOWN:
-                this.moveCursorToRow(this.cursorRow + 1);
-                return;
-            case Keyboard.KEY_HOME:
-                this.cursorColumn = 0;
-                return;
-            case Keyboard.KEY_END:
-                this.cursorColumn = this.lines[this.cursorRow].length();
-                return;
-            case Keyboard.KEY_PRIOR:
-                this.moveCursorToRow(0);
-                return;
-            case Keyboard.KEY_NEXT:
-                this.moveCursorToRow(this.lines.length - 1);
-                return;
-            default:
-                if (ChatAllowedCharacters.isAllowedCharacter(typedChar))
-                {
-                    String typedString = Character.toString(typedChar);
-                    String s = this.lines[this.cursorRow] + typedString;
-                    this.insertIntoCurrent(typedString);
+                    else
+                    {
+                        String newline = line.substring(0, this.cursorColumn) + line.substring(this.cursorColumn + 1, line.length());
+                        this.lines[this.cursorRow] = newline;
+                        this._editString(String.join("\n", this.lines));
+                    }
+                    return;
+                case Keyboard.KEY_RETURN:
+                case Keyboard.KEY_NUMPADENTER:
+                    if (this.cursorRow < this.maxRows)
+                    {
+                        this.insertIntoCurrent("\n");
+                        this.cursorColumn = 0;
+                        this.cursorRow += 1;
+                    }
+                    return;
+                case Keyboard.KEY_LEFT:
+                    this.cursorColumn--;
+                    if (this.cursorColumn < 0)
+                    {
+                        if (this.cursorRow > 0)
+                        {
+                            this.cursorRow--;
+                            this.cursorColumn = this.lines[this.cursorRow].length();
+                        }
+                        else
+                        {
+                            this.cursorColumn = 0;
+                        }
+                    }
+                    return;
+                case Keyboard.KEY_RIGHT:
+                    line_width = this.lines[this.cursorRow].length();
                     this.cursorColumn++;
-                }
+
+                    if (this.cursorRow < last_line)
+                    {
+                        if (this.cursorColumn > line_width)
+                        {
+                            this.cursorColumn = 0;
+                            this.moveCursorToRow(this.cursorRow + 1);
+                        }
+                    }
+                    else
+                    {
+                        if (this.cursorColumn > line_width) this.cursorColumn = line_width;
+                    }
+                    return;
+                case Keyboard.KEY_UP:
+                    this.moveCursorToRow(this.cursorRow - 1);
+                    return;
+                case Keyboard.KEY_DOWN:
+                    this.moveCursorToRow(this.cursorRow + 1);
+                    return;
+                case Keyboard.KEY_HOME:
+                    this.cursorColumn = 0;
+                    return;
+                case Keyboard.KEY_END:
+                    this.cursorColumn = this.lines[this.cursorRow].length();
+                    return;
+                case Keyboard.KEY_PRIOR:
+                    this.moveCursorToRow(0);
+                    return;
+                case Keyboard.KEY_NEXT:
+                    this.moveCursorToRow(this.lines.length - 1);
+                    return;
+                default:
+                    if (ChatAllowedCharacters.isAllowedCharacter(typedChar))
+                    {
+                        String typedString = Character.toString(typedChar);
+                        String s = this.lines[this.cursorRow] + typedString;
+                        this.insertIntoCurrent(typedString);
+                        this.cursorColumn++;
+                    }
+            }
         }
     }
 
@@ -393,9 +391,16 @@ public class GuiTextArea extends Gui
     {
         this.cursorRow = row;
         int num_lines = this.lines.length;
-        if (this.cursorRow < 0) this.cursorRow = 0;
-        else if (this.cursorRow >= num_lines) this.cursorRow = num_lines - 1;
-        else if (this.cursorRow >= this.maxRows) this.cursorRow = this.maxRows - 1;
+
+        if (this.cursorRow < 0)
+        {
+            this.cursorRow = 0;
+        }
+        else if (this.cursorRow >= num_lines)
+        {
+            this.cursorRow = num_lines - 1;
+        }
+
         this.fixCursorColumn();
     }
 
@@ -431,7 +436,8 @@ public class GuiTextArea extends Gui
 
         if (ModConfiguration.isDebug())
         {
-            FMLLog.log.info("MOUSE AT %d,%d", mouseX, mouseY);
+            String info = String.format("MOUSE AT %d,%d", mouseX, mouseY);
+            FMLLog.log.info(info);
         }
 
         boolean inside = modX > 0 && modY > 0 && modX < width && modY < height;
