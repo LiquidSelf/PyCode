@@ -23,7 +23,6 @@
 
 package net.mechanicalcat.pycode.proxy;
 
-import net.mechanicalcat.pycode.events.PyCodeEventHandler;
 import net.mechanicalcat.pycode.init.ModBlocks;
 import net.mechanicalcat.pycode.init.ModEntities;
 import net.mechanicalcat.pycode.init.ModItems;
@@ -37,8 +36,6 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class ClientProxy extends ServerProxy
 {
-    private PyCodeEventHandler handler = new PyCodeEventHandler();
-
     @Override
     public void preInit(FMLPreInitializationEvent e)
     {

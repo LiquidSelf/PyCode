@@ -80,7 +80,7 @@ public final class PythonBookItem extends Item
 
     public boolean itemInteract(ItemStack stack, HandEntity handEntity)
     {
-        if (handEntity instanceof HandEntity)
+        if (handEntity != null)
         {
             if (stack.getItem() == ModItems.python_book)
             {
@@ -100,13 +100,9 @@ public final class PythonBookItem extends Item
                     }
                 }
             }
-
             return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
     @Override

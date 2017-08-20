@@ -23,10 +23,10 @@
 
 package net.mechanicalcat.pycode;
 
+import com.google.common.base.CharMatcher;
 import net.minecraftforge.fml.common.FMLLog;
 import org.python.jsr223.PyScriptEngine;
 
-import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -59,17 +59,23 @@ public class PythonEngine
         {
             instance = new PythonEngine();
         }
-
         return instance;
     }
 
-    public static CompiledScript compile(String code) throws ScriptException
+    public static void compile(String code) throws ScriptException
     {
-        return getEngine().engine.compile(code);
+        if (CharMatcher.ascii().matchesAllOf(code))
+        {
+            getEngine().engine.compile(code);
+        }
+        else
+        {
+            FMLLog.log.error("Кодировка не ASCII!");
+        }
     }
 
-    public static Object eval(String code, ScriptContext context) throws ScriptException
+    public static void eval(String code, ScriptContext context) throws ScriptException
     {
-        return getEngine().engine.eval(code, context);
+        getEngine().engine.eval(code, context);
     }
 }

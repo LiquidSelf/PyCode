@@ -138,24 +138,9 @@ public final class PythonBlock extends Block implements ITileEntityProvider
         super.breakBlock(worldIn, pos, state);
     }
 
-    @Nullable
     @Override
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
-        // we're already dropping the item in breakBlock()
         return null;
     }
-
-    //    public int tickRate(World world) {
-//        return 10;
-//    }
-
-//    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
-//    canProvidePower
-
-//
-//    @Override
-//    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-//        super.onNeighborChange(world, pos, neighbor);
-//    }
 }

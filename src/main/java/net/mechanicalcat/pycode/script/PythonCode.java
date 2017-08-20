@@ -121,7 +121,7 @@ public class PythonCode
         if (world.isRemote) return;
         ((WorldServer)world).spawnParticle(EnumParticleTypes.SPELL,
                 pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5,
-                20, 0, 0, 0, .5, new int[0]);
+                20, 0, 0, 0, .5);
 
         if (ModConfiguration.isDebug())
         {
@@ -369,7 +369,7 @@ public class PythonCode
             {
                 ((WorldServer)world).spawnParticle(EnumParticleTypes.CRIT,
                         pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5,
-                        20, 0, 0, 0, .5, new int[0]);
+                        20, 0, 0, 0, .5);
             }
         }
         catch (ScriptException e)

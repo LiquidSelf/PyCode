@@ -27,7 +27,9 @@ package net.mechanicalcat.pycode.init;
 import net.mechanicalcat.pycode.PyCode;
 import net.mechanicalcat.pycode.Reference;
 import net.mechanicalcat.pycode.entities.HandEntity;
+import net.mechanicalcat.pycode.entities.RobotEntity;
 import net.mechanicalcat.pycode.render.RenderHand;
+import net.mechanicalcat.pycode.render.RenderRobot;
 import net.mechanicalcat.pycode.tileentity.PyCodeBlockTileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -41,7 +43,15 @@ public class ModEntities
     public static void register()
     {
         registerEntity(HandEntity.class, "python_hand");
+        registerEntity(RobotEntity.class, "python_robot");
+
         registerTileEntity(PyCodeBlockTileEntity.class, "PyCodeBlockTileEntity");
+    }
+
+    public static void registerRenders()
+    {
+        RenderingRegistry.registerEntityRenderingHandler(HandEntity.class, RenderHand::new);
+        RenderingRegistry.registerEntityRenderingHandler(RobotEntity.class, manager -> new RenderRobot(manager));
     }
 
     private static void registerEntity(Class entity, String name)
@@ -52,10 +62,5 @@ public class ModEntities
     private static void registerTileEntity(Class tileEntity, String name)
     {
         GameRegistry.registerTileEntity(tileEntity, Reference.MODID + name);
-    }
-
-    public static void registerRenders()
-    {
-        RenderingRegistry.registerEntityRenderingHandler(HandEntity.class, RenderHand::new);
     }
 }

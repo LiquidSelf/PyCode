@@ -24,7 +24,6 @@
 package net.mechanicalcat.pycode.entities;
 
 
-import net.mechanicalcat.pycode.init.ModConfiguration;
 import net.mechanicalcat.pycode.init.ModItems;
 import net.mechanicalcat.pycode.items.PythonBookItem;
 import net.mechanicalcat.pycode.items.PythonWandItem;
@@ -130,43 +129,35 @@ public class HandEntity extends Entity implements IHasPythonCode
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
-        return this.handleItemInteraction(player, player.getHeldItem(hand));
-    }
-
-    public boolean handleItemInteraction(EntityPlayer player, ItemStack heldItem)
-    {
-        if (ModConfiguration.isDebug())
+        ItemStack stack = player.getHeldItem(hand);
+        if (!world.isRemote)
         {
-            FMLLog.log.info("Hand Entity handleItemInteraction item=%s", heldItem);
-        }
-
-        if (heldItem == ItemStack.EMPTY)
-        {
-            if (this.code.hasKey("run"))
+            if (stack.isEmpty())
             {
-                this.code.put("hand", new HandMethods(this));
-                this.code.setRunner(player);
-                this.code.invoke("run", new MyEntityPlayer(player));
-                return true;
+                if (this.code.hasKey("run"))
+                {
+                    this.code.put("hand", new HandMethods(this));
+                    this.code.setRunner(player);
+                    this.code.invoke("run", new MyEntityPlayer(player));
+                    return true;
+                }
             }
         }
 
-        Item item = heldItem.getItem();
+        Item item = stack.getItem();
         if (item instanceof PythonWandItem)
         {
             PythonWandItem.invokeOnEntity(player, this);
-            return true;
         }
         else if (item instanceof PythonBookItem || item instanceof ItemWritableBook)
         {
             BlockPos pos = this.getPosition();
             this.code.put("hand", new HandMethods(this));
-            this.code.setCodeFromBook(this.getEntityWorld(), player, this, pos, heldItem);
+            this.code.setCodeFromBook(this.getEntityWorld(), player, this, pos, stack);
             PythonBookItem bookItem = (PythonBookItem) item;
-            bookItem.itemInteract(heldItem, this);
-            return true;
+            bookItem.itemInteract(stack, this);
         }
-        return false;
+        return true;
     }
 
     public void moveForward(float distance)

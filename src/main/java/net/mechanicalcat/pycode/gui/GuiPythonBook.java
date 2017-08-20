@@ -41,6 +41,8 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import ru.ivasik.ivasiklib.TextArea;
 
 import javax.script.ScriptException;
 import java.io.IOException;
@@ -102,6 +104,8 @@ public class GuiPythonBook extends GuiScreen
     private GuiTextArea pageEdit;
     private GuiVertTextField titleEdit;
 
+    private TextArea textArea;
+
     private static String TITLE_PLACEHOLDER = I18n.format("gui.python_book.title");
 
     private PythonCode code;
@@ -157,8 +161,8 @@ public class GuiPythonBook extends GuiScreen
         xPosition = (this.width - BOOK_PX_WIDTH) / 2;
         yPosition = 2;
 
-        this.buttonDone = this.addButton(new GuiButton(BUTTON_DONE_ID, xPosition + BUTTONS_PX_LEFT, yPosition + BUTTONS_PX_TOP, 70, 20, I18n.format("gui.done", new Object[0])));
-        this.buttonCancel = this.addButton(new GuiButton(BUTTON_CANCEL_ID, xPosition + BUTTONS_PX_LEFT, yPosition + BUTTONS_PX_TOP + 22, 70, 20, I18n.format("gui.cancel", new Object[0])));
+        this.buttonDone = this.addButton(new GuiButton(BUTTON_DONE_ID, xPosition + BUTTONS_PX_LEFT, yPosition + BUTTONS_PX_TOP, 70, 20, I18n.format("gui.done")));
+        this.buttonCancel = this.addButton(new GuiButton(BUTTON_CANCEL_ID, xPosition + BUTTONS_PX_LEFT, yPosition + BUTTONS_PX_TOP + 22, 70, 20, I18n.format("gui.cancel")));
 
         this.buttonNextPage = this.addButton(new GuiPythonBook.NextPageButton(BUTTON_NEXT_ID, xPosition + LOC_PX_LEFT + 22, yPosition + LOC_PX_TOP + 25, true));
         this.buttonPreviousPage = this.addButton(new GuiPythonBook.NextPageButton(BUTTON_PREV_ID, xPosition + LOC_PX_LEFT + 2, yPosition + LOC_PX_TOP + 25, false));
@@ -171,6 +175,12 @@ public class GuiPythonBook extends GuiScreen
         this.pageEdit.setString(s);
         this.pageEdit.setFocused(true);
         this.pageEdit.setGuiResponder(r);
+
+        this.textArea = new TextArea(xPosition + EDITOR_PX_LEFT, yPosition + EDITOR_PX_TOP, EDITOR_PX_WIDTH, EDITOR_PX_HEIGHT, 30);
+        for (int i = 0; i < 30; i++)
+        {
+            textArea.getText().add("hr_" + i);
+        }
 
         this.titleEdit = new GuiVertTextField(TITLE_EDIT_ID, this.fontRenderer, xPosition + TITLE_PX_LEFT, yPosition + TITLE_PX_BOTTOM, 176, 15);
         this.titleEdit.setFocused(false);
@@ -229,7 +239,7 @@ public class GuiPythonBook extends GuiScreen
         }
         else
         {
-            this.titleEdit.setTextColor(00);
+            this.titleEdit.setTextColor(0);
         }
 
         String content = pageEdit.getString();
@@ -376,10 +386,10 @@ public class GuiPythonBook extends GuiScreen
 
         // draw the widgets
         this.pageEdit.drawEditor();
+        this.textArea.render(mouseX, mouseY, partialTicks);
         this.titleEdit.drawTextBox();
 
         // render the page location
-        // TODO consider using GuiLabel
         this.drawCenteredString(this.fontRenderer, I18n.format("gui.python_book.page"),
                 xPosition + LOC_PX_LEFT + LOC_PX_WIDTH / 2,
                 yPosition + LOC_PX_TOP, 0);
@@ -529,6 +539,25 @@ public class GuiPythonBook extends GuiScreen
             return flag;
         }
     }
+
+    //Ivasik Code - start
+    @Override
+    public void handleMouseInput() throws IOException
+    {
+        super.handleMouseInput();
+
+        int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+        int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+
+        int i = Mouse.getEventDWheel();
+
+        if (i != 0)
+        {
+            boolean scroll = i > 0;
+            textArea.mouseScroll(mouseX, mouseY, scroll);
+        }
+    }
+    //Ivasik Code - end
 
     @SideOnly(Side.CLIENT)
     static class NextPageButton extends GuiButton

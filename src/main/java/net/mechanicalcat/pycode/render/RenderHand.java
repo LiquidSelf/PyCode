@@ -47,11 +47,11 @@ public class RenderHand extends Render<HandEntity>
     }
 
     @Nonnull
-    protected ResourceLocation getEntityTexture(@Nonnull HandEntity entity) {
+    protected ResourceLocation getEntityTexture(HandEntity entity) {
         return handTexture;
     }
 
-    public void doRender(@Nonnull HandEntity entity, double x, double y, double z, float entityYaw, float partialTicks)
+    public void doRender(HandEntity entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.pushMatrix();
         this.bindEntityTexture(entity);
@@ -80,7 +80,6 @@ public class RenderHand extends Render<HandEntity>
         {
             this.renderName(entity, x, y, z);
         }
-
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 }

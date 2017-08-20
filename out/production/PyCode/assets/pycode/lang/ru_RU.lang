@@ -1,0 +1,15 @@
+itemGroup.pytab=PyCode
+
+gui.python_book.title=Нажмите, чтобы изменить название книги
+gui.python_book.page=Страница
+gui.python_book.page.at=из
+
+item.hand.tooltip.info=[Есть код]
+
+item.python_wand.name=Python Палка
+item.python_hand.name=Python Рука
+item.python_book.name=Python Кодовая Книга
+
+tile.python_block.name=Python Кодовый Блок
+
+entity.python_hand.name=Python Рука

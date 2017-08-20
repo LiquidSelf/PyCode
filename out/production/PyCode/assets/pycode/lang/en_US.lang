@@ -1,0 +1,15 @@
+itemGroup.pytab=PyCode
+
+gui.python_book.title=Click to edit book title
+gui.python_book.page=Page
+gui.python_book.page.at=at
+
+item.hand.tooltip.info=[Has code]
+
+item.python_wand.name=Python Wand
+item.python_hand.name=Python Hand
+item.python_book.name=Python Code Book
+
+tile.python_block.name=Python Code Block
+
+entity.python_hand.name=Python Hand
