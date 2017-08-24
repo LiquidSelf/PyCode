@@ -177,10 +177,6 @@ public class GuiPythonBook extends GuiScreen
         this.pageEdit.setGuiResponder(r);
 
         this.textArea = new TextArea(xPosition + EDITOR_PX_LEFT, yPosition + EDITOR_PX_TOP, EDITOR_PX_WIDTH, EDITOR_PX_HEIGHT, 30);
-        for (int i = 0; i < 30; i++)
-        {
-            textArea.getText().add("hr_" + i);
-        }
 
         this.titleEdit = new GuiVertTextField(TITLE_EDIT_ID, this.fontRenderer, xPosition + TITLE_PX_LEFT, yPosition + TITLE_PX_BOTTOM, 176, 15);
         this.titleEdit.setFocused(false);
